@@ -39,7 +39,7 @@ public struct Document: JSONDecodable {
         
         jsonapi = json["jsonapi"]
         
-        links = try json["links"]?.asDictionary()
+        links = try json["links"]?.asCompactDictionary()
         
         included = try json["included"]?.asArray()
     }

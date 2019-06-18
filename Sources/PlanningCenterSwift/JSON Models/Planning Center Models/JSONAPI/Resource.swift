@@ -29,7 +29,7 @@ public struct Resource: JSONDecodable {
         
         relationships = try json["relationships"]?.asDictionary()
         
-        links = try json["links"]?.asDictionary()
+        links = try json["links"]?.asCompactDictionary()
         
         meta = json["meta"]
     }

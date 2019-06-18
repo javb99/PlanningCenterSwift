@@ -35,7 +35,7 @@ public struct APIError: JSONDecodable {
     
     public init(json: JSON) throws {
         id = json["id"]
-        links = try json["links"]?.asDictionary()
+        links = try json["links"]?.asCompactDictionary()
         title = json["title"]
         detail = json["detail"]
         meta = json["meta"]

@@ -147,9 +147,19 @@ extension JSON {
         return dictionary
     }
     
-    /// Treat as a `Dictionary` with values that are any `JSONDecodable` type specified by type inference. Throws a `JSONDecodeError` if this is not representing a `Dictionary` of `JSONDecodable` values.
+    /// Treat as a `Dictionary` with values that are any `JSONDecodable` type specified by type inference.
+    /// - Throws: a `JSONDecodeError` if the conversion of any element fails. To get soft failure use `asCompactDictionary()`
     func asDictionary<T: JSONDecodable>() throws -> [String: T] {
         return try asDictionary().mapValues(T.init(json:))
+    }
+    
+    /// Treat as a `Dictionary` with values that are `JSONDecodable` or `.null`. `.null` values are removed.
+    /// - Throws: a `JSONDecodeError` if an element is not `.null` and its conversion fails.
+    func asCompactDictionary<T: JSONDecodable>() throws -> [String: T] {
+        return try asDictionary().compactMapValues { json in
+            if json.isNull { return nil }
+            return try T(json: json)
+        }
     }
 }
 

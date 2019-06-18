@@ -23,7 +23,7 @@ public struct Relationship: JSONDecodable {
         
         meta = json["meta"]
         
-        links = try json["links"]?.asDictionary()
+        links = try json["links"]?.asCompactDictionary()
         
         guard resourceLinkage != nil || meta != nil || links != nil else {
             throw ResourceDecodeError.incorrectStructure(reason: "Must have at least one of data, meta, or links")
