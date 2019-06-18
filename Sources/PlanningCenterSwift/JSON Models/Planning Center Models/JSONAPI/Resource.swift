@@ -36,7 +36,7 @@ public struct Resource: JSONDecodable {
     
     /// Return the field specified by `key` throwing an error if it fails.
     /// - Throws: JSONDecodeError if the relationships are not present or do not match the expected single data value.
-    func attribute(for key: String) throws -> JSON {
+    public func attribute(for key: String) throws -> JSON {
         guard let attributes = attributes else {
             throw ResourceDecodeError.incorrectStructure(reason: "Accessing attributes when it doesn't exist.")
         }
@@ -48,7 +48,7 @@ public struct Resource: JSONDecodable {
     
     /// Return the to-one relationship specified by `key` throwing an error if it fails.
     /// - Throws: JSONDecodeError if the relationships are not present or do not match the expected single data value.
-    func toOneRelationship<T>(for key: String) throws -> ResourceIdentifier<T> {
+    public func toOneRelationship<T>(for key: String) throws -> ResourceIdentifier<T> {
         guard let relationships = relationships else {
             throw ResourceDecodeError.incorrectStructure(reason: "Accessing relationships when it doesn't exist.")
         }
@@ -60,7 +60,7 @@ public struct Resource: JSONDecodable {
     
     /// Return the to-many relationship specified by `key` throwing an error if it fails.
     /// - Throws: JSONDecodeError if the relationships are not present or do not match the expected multiple data value.
-    func toManyRelationship<T>(for key: String) throws -> [ResourceIdentifier<T>] {
+    public func toManyRelationship<T>(for key: String) throws -> [ResourceIdentifier<T>] {
         guard let relationships = relationships else {
             throw ResourceDecodeError.incorrectStructure(reason: "Accessing relationships when it doesn't exist.")
         }
@@ -73,7 +73,7 @@ public struct Resource: JSONDecodable {
     }
     
     /// Return the field specified by `key` if it is present and not null otherwise nil.
-    func attributeIfPresent(for key: String) -> JSON? {
+    public func attributeIfPresent(for key: String) -> JSON? {
         guard let value: JSON = attributes?[key], !value.isNull else {
             return nil
         }
@@ -81,12 +81,12 @@ public struct Resource: JSONDecodable {
     }
     
     /// Return the to-one relationship specified by `key` if it is present otherwise nil.
-    func toOneRelationshipIfPresent<T>(for key: String) -> ResourceIdentifier<T>? {
+    public func toOneRelationshipIfPresent<T>(for key: String) -> ResourceIdentifier<T>? {
         return try? toOneRelationship(for: key)
     }
     
     /// Return the to-many relationship specified by `key` if it is present otherwise nil.
-    func toManyRelationshipIfPresent<T>(for key: String) -> [ResourceIdentifier<T>]? {
+    public func toManyRelationshipIfPresent<T>(for key: String) -> [ResourceIdentifier<T>]? {
         return try? toManyRelationship(for: key)
     }
 }
