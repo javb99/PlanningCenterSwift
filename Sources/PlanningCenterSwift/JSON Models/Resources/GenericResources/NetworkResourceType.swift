@@ -16,24 +16,29 @@ public protocol NetworkResourceType: ResourceType {
     /// Default Implementation: Construct a basic `URLRequest` using `url`
     var urlRequest: URLRequest { get }
     
+    /// Whether the `authenticationProvider` should be asked for an authorization header.
+    /// Default implementation returns `false`.
     static var requiresAuthentication: Bool { get }
-    var authenticationHeader: (key: String, value: String)? { get }
+    
+    /// The provider of the authorization header.
+    /// Default implemenation provided just returns `nil`.
+    //static var authenticationProvider: AuthenticationProvider? { get }
 }
 
 extension NetworkResourceType {
     
-    var urlRequest: URLRequest {
+    public var urlRequest: URLRequest {
         let urlRequest = URLRequest(url: url)
         return urlRequest
     }
     
-    static var requiresAuthentication: Bool {
+    public static var requiresAuthentication: Bool {
         return false
     }
     
-    public var authenticationHeader: (key: String, value: String)? {
-        return nil
-    }
+//    public static var authenticationHeader: AuthenticationProvider? {
+//        return nil
+//    }
 }
 
 public typealias JSONNetworkResourceType = NetworkResourceType & JSONResourceType

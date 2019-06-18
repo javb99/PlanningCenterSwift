@@ -43,13 +43,6 @@ extension APIResourceType {
         return true
     }
     
-//    var authenticationHeader: (key: String, value: String)? {
-//        guard Self.requiresAuthentication, let credential = OAuthManager.shared.authenticationHeaderCredential else {
-//            return nil
-//        }
-    //        return (keypublic : "Authorization", value:public  credential)
-    // public    }
-    
     public var urlRequest: URLRequest {
         var urlRequest = URLRequest(url: url)
         urlRequest.addValue("application/vnd.api+json", forHTTPHeaderField: "Accept")
