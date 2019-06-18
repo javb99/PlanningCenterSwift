@@ -39,8 +39,8 @@ public struct Webhook<Payload>: ResourceDecodable where Payload: ResourceDecodab
     
     public static func parsePayload(from data: Data) throws -> Payload {
         let jsonResponse = try JSONDecoder().decode(JSON.self, from: data)
-        let doc = try! Document(json: jsonResponse)
+        let doc = try Document(json: jsonResponse)
         let resource = doc.data!.asMultiple!.first!
-        return try! Webhook(resource: resource).payload
+        return try Webhook(resource: resource).payload
     }
 }
