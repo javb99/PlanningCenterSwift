@@ -26,8 +26,11 @@ public struct Plan: ResourceDecodable {
     
     public var neededPositionsCount: Int
     
-    public var timeIDs: [ResourceIdentifier<PlanTime>]
+    public var timeIDs: [ResourceIdentifier<PlanTime>]?
     public var times: [ResourceIdentifier<PlanTime>: PlanTime]?
+    
+    public var createdBy: ResourceIdentifier<Person>
+    public var updatedBy: ResourceIdentifier<Person>
     
     public init(resource: Resource) throws {
         id = try resource.identifer.specialize()
@@ -37,8 +40,9 @@ public struct Plan: ResourceDecodable {
         planPeopleCount = try resource.attribute(for: "plan_people_count").asInt()
         neededPositionsCount = try resource.attribute(for: "needed_positions_count").asInt()
 
-        //teamID = resource.toOneRelationship(for: "team").id
         serviceTypeID = try resource.toOneRelationship(for: "service_type")
-        timeIDs = try resource.toManyRelationship(for: "plan_times")
+        createdBy = try resource.toOneRelationship(for: "created_by")
+        updatedBy = try resource.toOneRelationship(for: "updated_by")
+        timeIDs = try resource.toManyRelationshipIfPresent(for: "plan_times")
     }
 }
