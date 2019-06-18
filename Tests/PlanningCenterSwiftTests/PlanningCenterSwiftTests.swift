@@ -8,6 +8,11 @@ final class PlanningCenterSwiftTests: XCTestCase {
         // results.
         XCTAssertEqual(PlanningCenterSwift().text, "Hello, World!")
         XCTAssertEqual(Plan.resourceType, "Plan")
+        guard let date = pcjsonDateAndTimeFormatter.date(from: "2019-06-12T19:00:00Z") else {
+            XCTAssertFalse(true)
+            return
+        }
+        XCTAssertEqual(pcjsonDateAndTimeFormatter.string(from: date), "2019-06-12T19:00:00Z")
     }
 
     static var allTests = [
