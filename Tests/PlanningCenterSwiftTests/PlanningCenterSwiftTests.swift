@@ -7,6 +7,7 @@ final class PlanningCenterSwiftTests: XCTestCase {
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
         XCTAssertEqual(PlanningCenterSwift().text, "Hello, World!")
+        XCTAssertEqual(Plan.resourceType, "Plan")
     }
 
     static var allTests = [

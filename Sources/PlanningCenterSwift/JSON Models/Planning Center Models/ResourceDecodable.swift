@@ -21,7 +21,7 @@ public protocol ResourceDecodable: Hashable {
 
 extension ResourceDecodable {
     public static var resourceType: String {
-        return "\(type(of: self))"
+        return String(describing: Self.self)
     }
 }
 
