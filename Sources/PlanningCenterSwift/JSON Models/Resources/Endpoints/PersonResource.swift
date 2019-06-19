@@ -7,7 +7,7 @@
 
 import Foundation
 
-typealias PersonResource = SingleResource<Person>
+public typealias PersonResource = SingleResource<Person>
 
 extension Person: FetchableByIdentifier {
     public static var collectionPath: String {

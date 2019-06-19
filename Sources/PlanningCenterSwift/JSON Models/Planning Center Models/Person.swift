@@ -22,7 +22,7 @@ public struct Person: ResourceDecodable {
     public init(resource: Resource) throws {
         id = try resource.identifer.specialize()
         fullName = try resource.attribute(for: "full_name").asString()
-        photoThumbnail = try resource.attribute(for: "photo_thumbnail").asURL()
+        photoThumbnail = try resource.attribute(for: "photo_thumbnail_url").asURL()
         // Relationships
         createdBy = try resource.toOneRelationship(for: "created_by")
         updatedBy = try resource.toOneRelationship(for: "updated_by")
