@@ -43,6 +43,6 @@ public struct Plan: ResourceDecodable {
         serviceTypeID = try resource.toOneRelationship(for: "service_type")
         createdBy = try resource.toOneRelationship(for: "created_by")
         updatedBy = try resource.toOneRelationship(for: "updated_by")
-        timeIDs = try resource.toManyRelationshipIfPresent(for: "plan_times")
+        timeIDs = resource.toManyRelationshipIfPresent(for: "plan_times")
     }
 }

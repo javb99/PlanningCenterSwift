@@ -34,6 +34,11 @@ public class URLSessionService: ResourceService {
     
     public var authenticationProvider: AuthenticationProvider? = nil
     
+    public init(session: URLSession = .shared, authenticationProvider: AuthenticationProvider? = nil) {
+        self.authenticationProvider = authenticationProvider
+        self.session = session
+    }
+    
     public func fetch<Resource>(resource: Resource, completion: @escaping (Resource, Result<Resource.Model, Error>) -> ()) where Resource : NetworkResourceType {
         
         var request = resource.urlRequest
