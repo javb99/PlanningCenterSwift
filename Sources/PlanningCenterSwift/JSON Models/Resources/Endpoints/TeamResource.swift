@@ -8,21 +8,21 @@
 
 import Foundation
 
-struct TeamResource: APIResourceType {
+typealias TeamResource = SingleResource<Team>
+
+extension Team: FetchableByIdentifier {
+    public static var collectionPath: String {
+        return "teams"
+    }
+}
+
+extension SingleResource where Model == Team {
     
-    typealias Model = Team
-    
-    let path: String
-    
-    init(id: String) {
-        path = "teams/\(id)"
+    init(personID: ResourceIdentifier<Person>, planPersonID: ResourceIdentifier<PlanPerson>) {
+        self.init(path: "people/\(personID.id)/plan_people/\(planPersonID.id)/team")
     }
     
-    init(personID: String, planPersonID: String) {
-        path = "people/\(personID)/plan_people/\(planPersonID)/team"
-    }
-    
-    init(personID: String, scheduleID: String) {
-         path = "people/\(personID)/schedules/\(scheduleID)/team"
+    init(personID: ResourceIdentifier<Person>, scheduleID: String) {
+         self.init(path: "people/\(personID.id)/schedules/\(scheduleID)/team")
     }
 }

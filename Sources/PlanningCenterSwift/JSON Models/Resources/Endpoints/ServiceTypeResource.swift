@@ -8,17 +8,10 @@
 
 import Foundation
 
-struct ServiceTypeResource: APIResourceType {
-    
-    typealias Model = ServiceType
-    
-    let id: String
-    
-    init(id: String) {
-        self.id = id
-    }
-    
-    var path: String {
-        return "service_types/\(id)"
+public typealias ServiceTypeResource = SingleResource<ServiceType>
+
+extension ServiceType: FetchableByIdentifier {
+    public static var collectionPath: String {
+        return "service_types"
     }
 }
