@@ -23,8 +23,8 @@ public struct CountResource<Wrapped: APIResourceType>: APIResourceType {
     var paginatedWrapped: Paginated<Wrapped>
     
     init(wrapping: Wrapped) {
-        paginatedWrapped = Paginated<Wrapped>(wrapping: wrapping)
-        paginatedWrapped.pageSize = 0 // Force the request to return an empty data object and meta object with the total count.
+        // Force the request to return an empty data object and meta object with the total count.
+        paginatedWrapped = Paginated<Wrapped>(wrapping: wrapping, pageSize: 0)
     }
     
     // MARK: Pass on to wrapped resource.

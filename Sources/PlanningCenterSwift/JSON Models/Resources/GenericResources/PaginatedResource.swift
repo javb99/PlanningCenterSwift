@@ -9,47 +9,45 @@
 import Foundation
 
 /// Wraps an `APIResource` to add pagination information. The model is a tuple of the wrapped model and a boolean indicating if there are more pages.
-struct Paginated<Wrapped: APIResourceType>: APIResourceType {
-    typealias Model = (Wrapped.Model, Bool)
+public struct Paginated<Wrapped: APIResourceType>: APIResourceType {
+    public typealias Model = (Wrapped.Model, Bool)
     
-    var offset: Int?
-    var pageSize: Int?
+    public let offset: Int
+    public let pageSize: Int
     
-    var wrapped: Wrapped
+    public let wrapped: Wrapped
     
-    init(wrapping: Wrapped) {
+    public init(wrapping: Wrapped, offset: Int = 0, pageSize: Int = 25) {
         wrapped = wrapping
+        self.offset = offset
+        self.pageSize = pageSize
     }
     
     /// Create an array of PCResourceDecodable objects from a JSON API document.
-    func makeModel(_ document: Document) throws -> Model {
-        let hasAnotherPage = (offset ?? 0) + (pageSize ?? 25) < (document.meta?.totalCount ?? 0)
+    public func makeModel(_ document: Document) throws -> Model {
+        let hasAnotherPage = offset + pageSize < (document.meta?.totalCount ?? 0)
         
         return try (wrapped.makeModel(document), hasAnotherPage)
     }
     
-    var queryItems: [URLQueryItem]? {
+    public var queryItems: [URLQueryItem]? {
         return paginationItems + (wrapped.queryItems ?? [])
     }
     
-    var paginationItems: [URLQueryItem] {
+    public var paginationItems: [URLQueryItem] {
         var items: [URLQueryItem] = []
-        if let offset = offset {
-            items.append(.init(name: "offset", value: String(describing: offset)))
-        }
-        if let pageSize = pageSize {
-            items.append(.init(name: "per_page", value: String(describing: pageSize)))
-        }
+        items.append(.init(name: "offset", value: String(describing: offset)))
+        items.append(.init(name: "per_page", value: String(describing: pageSize)))
         return items
     }
     
-    var nextPage: Paginated<Wrapped>? {
-        var nextPage = Paginated<Wrapped>(wrapping: wrapped)
+    public var nextPage: Paginated<Wrapped>? {
         /// Offset by the pageSize
-        nextPage.offset = (offset ?? 0) + (pageSize ?? 25)
-        return nextPage
+        return Paginated<Wrapped>(wrapping: wrapped,
+                                  offset: offset + pageSize,
+                                  pageSize: pageSize)
     }
     
-    var path: String { return wrapped.path }
+    public var path: String { return wrapped.path }
     
 }
