@@ -3,5 +3,5 @@ import XCTest
 import PlanningCenterSwiftTests
 
 var tests = [XCTestCaseEntry]()
-tests += PlanningCenterSwiftTests.allTests()
+tests += PlanTests.allTests()
 XCTMain(tests)

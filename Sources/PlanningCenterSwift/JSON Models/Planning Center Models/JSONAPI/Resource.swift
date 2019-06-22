@@ -108,3 +108,18 @@ extension AnyResourceIdentifier: JSONDecodable {
         meta = nil
     }
 }
+
+public func parseResource<T: ResourceDecodable>(_ type: T.Type = T.self, from data: Data) throws -> T {
+    let json = try JSONDecoder().decode(JSON.self, from: data)
+    let resource = try Resource(json: json)
+    return try T.init(resource: resource)
+}
+
+//extension ResourceDecodable {
+//
+//    public static func parseResource(from data: Data) throws -> Self {
+//        let json = try JSONDecoder().decode(JSON.self, from: data)
+//        let resource = try Resource(json: json)
+//        return try Self.init(resource: resource)
+//    }
+//}

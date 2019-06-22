@@ -12,8 +12,19 @@ import GenericJSON
 public struct Plan: ResourceDecodable {
     
     public var id: ResourceIdentifier<Plan>
+    
+    // MARK: - Attributes
+    
     public var title: String?
+    
+    /// A  date (though, time is not necessarily a service time) to sort plans by.
     public var sortDate: Date?
+    
+    /// The long form of the service dates. Ex. "June 26 & 27, 2019"
+    public var datesDescription: String
+    
+    /// The short form of the service dates. Ex. "Jun 26 & 27"
+    public var shortDatesDescription: String
     
     public var serviceTypeID: ResourceIdentifier<ServiceType>
     /// Only exists if filled from the outside.
@@ -26,6 +37,8 @@ public struct Plan: ResourceDecodable {
     
     public var neededPositionsCount: Int
     
+    // MARK: - Relationships
+    
     public var timeIDs: [ResourceIdentifier<PlanTime>]?
     public var times: [ResourceIdentifier<PlanTime>: PlanTime]?
     
@@ -37,6 +50,8 @@ public struct Plan: ResourceDecodable {
         
         title = try resource.attributeIfPresent(for: "title")?.asString()
         sortDate = try resource.attribute(for: "sort_date").asDate()
+        datesDescription = try resource.attribute(for: "dates").asString()
+        shortDatesDescription = try resource.attribute(for: "short_dates").asString()
         planPeopleCount = try resource.attribute(for: "plan_people_count").asInt()
         neededPositionsCount = try resource.attribute(for: "needed_positions_count").asInt()
 
