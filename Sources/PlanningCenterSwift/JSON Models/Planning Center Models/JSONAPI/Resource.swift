@@ -46,21 +46,51 @@ public struct Resource: JSONDecodable {
         return value
     }
     
+    /// Return the field specified by `key` if it is present and not null otherwise nil.
+    public func attributeIfPresent(for key: String) -> JSON? {
+        guard let value: JSON = attributes?[key], !value.isNull else {
+            return nil
+        }
+        return value
+    }
+    
+    // MARK: To-One Relationship
+    
     /// Return the to-one relationship specified by `key` throwing an error if it fails.
-    /// - Throws: JSONDecodeError if the relationships are not present or do not match the expected single data value.
-    public func toOneRelationship<T>(for key: String) throws -> ResourceIdentifier<T> {
+    /// - Throws: JSONDecodeError if the relationship is not present.
+    public func toOneRelationship(for key: String) throws -> AnyResourceIdentifier {
         guard let relationships = relationships else {
             throw ResourceDecodeError.incorrectStructure(reason: "Accessing relationships when it doesn't exist.")
         }
         guard let relation = relationships[key]?.resourceLinkage?.asSingle else {
             throw ResourceDecodeError.failedToParseRelationship(identifer.type+"."+key)
         }
-        return try relation.specialize()
+        return relation
     }
     
+    /// Return the to-one relationship specified by `key` if it is present otherwise nil.
+    public func toOneRelationshipIfPresent<T>(for key: String) -> AnyResourceIdentifier? {
+        // Notice the different return type.
+        return try? toOneRelationship(for: key)
+    }
+    
+    /// Return the to-one relationship specified by `key` throwing an error if it fails.
+    /// - Throws: JSONDecodeError if the relationships are not present or do not match the expected single data value.
+    public func toOneRelationship<T>(for key: String) throws -> ResourceIdentifier<T> {
+        return toOneRelationship(for: key).specialize()
+    }
+    
+    /// Return the to-one relationship specified by `key` if it is present otherwise nil.
+    public func toOneRelationshipIfPresent<T>(for key: String) -> ResourceIdentifier<T>? {
+        // Notice the different return type.
+        return try? toOneRelationship(for: key)
+    }
+    
+    // MARK: To-Many Relationship
+    
     /// Return the to-many relationship specified by `key` throwing an error if it fails.
-    /// - Throws: JSONDecodeError if the relationships are not present or do not match the expected multiple data value.
-    public func toManyRelationship<T>(for key: String) throws -> [ResourceIdentifier<T>] {
+    /// - Throws: JSONDecodeError if the relationships are not present.
+    public func toManyRelationship(for key: String) throws -> [AnyResourceIdentifier] {
         guard let relationships = relationships else {
             throw ResourceDecodeError.incorrectStructure(reason: "Accessing relationships when it doesn't exist.")
         }
@@ -72,21 +102,24 @@ public struct Resource: JSONDecodable {
         }
     }
     
-    /// Return the field specified by `key` if it is present and not null otherwise nil.
-    public func attributeIfPresent(for key: String) -> JSON? {
-        guard let value: JSON = attributes?[key], !value.isNull else {
-            return nil
-        }
-        return value
+    /// Return the to-many relationship specified by `key` if it is present otherwise nil.
+    public func toManyRelationshipIfPresent<T>(for key: String) -> [AnyResourceIdentifier]? {
+        // Notice the different return type.
+        return try? toManyRelationship(for: key)
     }
     
-    /// Return the to-one relationship specified by `key` if it is present otherwise nil.
-    public func toOneRelationshipIfPresent<T>(for key: String) -> ResourceIdentifier<T>? {
-        return try? toOneRelationship(for: key)
+    /// Return the to-many relationship specified by `key` throwing an error if it fails.
+    /// - Throws: JSONDecodeError if the relationships are not present or do not match the expected multiple data value.
+    public func toManyRelationship<T>(for key: String) throws -> [ResourceIdentifier<T>] {
+        // Notice the different return type.
+        return toManyRelationship(for: key).compactMap { relation in
+            return try? relation.specialize()
+        }
     }
     
     /// Return the to-many relationship specified by `key` if it is present otherwise nil.
     public func toManyRelationshipIfPresent<T>(for key: String) -> [ResourceIdentifier<T>]? {
+        // Notice the different return type.
         return try? toManyRelationship(for: key)
     }
 }
