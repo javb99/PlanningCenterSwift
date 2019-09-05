@@ -18,3 +18,5 @@ public struct FoldersResource: APIResourceType {
         return "folders"
     }
 }
+
+typealias FoldersDocument = Document<[Resource<Folder>], JSON, JSON,
