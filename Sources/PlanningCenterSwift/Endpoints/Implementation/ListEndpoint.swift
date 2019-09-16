@@ -44,7 +44,7 @@ InstanceEndpoint: SingleResourceEndpoint {
     
     public typealias RequestBody = Empty
     
-    public typealias ResponseBody = ResourceCollectionDocument<ResourceType>
+    public typealias ResponseBody = ResourceCollectionDocument<InstanceEndpoint.ResourceType>
     
     public var path: Path
     public init(path: Path) {

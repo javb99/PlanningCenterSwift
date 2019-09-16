@@ -7,16 +7,47 @@
 //
 
 import Foundation
+import JSONAPISpec
 
-public struct Folder: ResourceDecodable {
-    public var id: ResourceIdentifier<Folder>
-    public var name: String?
-    public var parentID: ResourceIdentifier<Folder>?
-    
-    public init(resource: Resource) throws {
-        id = try resource.identifer.specialize()
+
+public enum Models {}
+
+extension Models {
+    public struct Folder {
         
-        name = try resource.attribute(for: "name").asString()
-        parentID = resource.toOneRelationshipIfPresent(for: "parent")
     }
+}
+
+extension Models.Folder: ResourceProtocol {
+    
+    public struct Attributes: Codable {
+        
+        enum CodingKeys: String, CodingKey {
+            case name
+            case createdAt = "created_at"
+            case updatedAt = "updated_at"
+            case container
+        }
+        
+        public var name: String?
+        
+        public var createdAt: Date?
+        
+        public var updatedAt: Date?
+        
+        public var container: String?
+    }
+    
+    public struct Relationships: Codable {
+        
+        enum CodingKeys: String, CodingKey {
+            case parent = "parent_id"
+        }
+        
+        public var parent: ToOneRelationship<Models.Folder>?
+    }
+    
+    public typealias Links = Empty
+    
+    public typealias Meta = Empty
 }

@@ -12,6 +12,10 @@ enum NetworkError: Error {
     case noAuthorizationProvider
     case noAuthenticationHeader   // OAuth token not available.
     case notAuthorized            // Not authorized response from server.
+    case noHTTPResponse
+    case system(Error)
+    case decode(Error)
+    case unknown
 }
 
 extension NetworkError: CustomStringConvertible {
@@ -24,13 +28,31 @@ extension NetworkError: CustomStringConvertible {
             return "No AuthenticationProvider supplied to URLSessionService."
         case .notAuthorized:
             return "Not authorized."
+        case .noHTTPResponse:
+            return "URLResponse is not an HTTPURLResposne"
+        case let .system(e):
+            return "System error: \(e)"
+        case let .decode(e):
+            return "Decode error: \(e)"
+        case .unknown:
+            return "Unkown Networking error."
         }
     }
 }
 
-public class URLSessionService: ResourceService {
+public class URLSessionService {
     
     public var session: URLSession = .shared
+    
+    private let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        return decoder
+    }()
+    
+    private let encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        return encoder
+    }()
     
     public var authenticationProvider: AuthenticationProvider? = nil
     
@@ -39,39 +61,63 @@ public class URLSessionService: ResourceService {
         self.session = session
     }
     
-    public func fetch<Resource>(resource: Resource, completion: @escaping (Resource, Result<Resource.Model, Error>) -> ()) where Resource : NetworkResourceType {
+    public func fetch<Endpt>(_ endpoint: Endpt) where Endpt: Endpoint {
         
-        var request = resource.urlRequest
+    }
+    
+    public func send<Endpt>(body: Endpt.RequestBody, to: Endpt) where Endpt: Endpoint {
+        
+    }
+    
+    private func send<Endpt>(request: URLRequest, for endpoint: Endpt, completion: @escaping (Result<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>) -> ()) where Endpt: Endpoint {
+        
+        var request = request
         
         // Add the authentication header.
-        if Resource.requiresAuthentication {
-            guard let provider = authenticationProvider else {
-                completion(resource, .failure(NetworkError.noAuthorizationProvider))
-                return
-            }
-            guard let (headerField, value) = provider.authenticationHeader else {
-                completion(resource, .failure(NetworkError.noAuthenticationHeader))
-                return
-            }
-            request.addValue(value, forHTTPHeaderField: headerField)
+        guard let provider = authenticationProvider else {
+            completion(.failure(.noAuthorizationProvider))
+            return
         }
+        guard let (headerField, value) = provider.authenticationHeader else {
+            completion(.failure(.noAuthenticationHeader))
+            return
+        }
+        request.addValue(value, forHTTPHeaderField: headerField)
         
         let task = session.dataTask(with: request) { (data, response, error) in
-            if (response as? HTTPURLResponse)?.statusCode == 401 {
-                completion(resource, .failure(NetworkError.notAuthorized))
-            } else if let data = data {
-                let result = Result<Resource.Model, Error>(){
-                    // Capture any errors in the result.
-                    return try resource.makeModel(data)
-                }
-                completion(resource, result)
-                
-            } else if let error = error {
-                completion(resource, .failure(error))
-            } else {
-                assertionFailure()
-            }
+            
+            let result = self.handleResponse(to: endpoint, response, data: data, error: error)
+            completion(result)
         }
         task.resume()
+    }
+    
+    func handleResponse<Endpt: Endpoint>(to endpoint: Endpt, _ response: URLResponse?, data: Data?, error: Error?)
+        -> Result<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError> {
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            return .failure(.noHTTPResponse)
+        }
+        
+        guard httpResponse.statusCode != 401 else {
+            return .failure(.notAuthorized)
+        }
+        
+        guard let data = data else {
+            if let error = error {
+                return .failure(.system(error))
+            } else {
+                return .failure(.unknown)
+            }
+        }
+        
+        let model: Endpt.ResponseBody
+        do {
+            model = try decoder.decode(Endpt.ResponseBody.self, from: data)
+        } catch {
+            return .failure(.decode(error))
+        }
+        
+        return .success((httpResponse, endpoint, model))
     }
 }

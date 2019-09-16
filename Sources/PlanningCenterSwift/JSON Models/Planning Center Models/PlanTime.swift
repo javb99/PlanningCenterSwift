@@ -1,41 +1,82 @@
 //
 //  PlanTime.swift
-//  ServicesScheduler
+//
+//  See API documentation here: https://developer.planning.center/docs/#/apps/services/2018-11-01/vertices/plan_time
 //
 //  Created by Joseph Van Boxtel on 1/11/19.
 //  Copyright © 2019 Joseph Van Boxtel. All rights reserved.
 //
-
+//
 import Foundation
-import GenericJSON
+import JSONAPISpec
 
-public struct PlanTime: ResourceDecodable {
+// MARK: - Related API
+
+public struct PlanTime {
+    
+    public static var pluralName: String = "folders"
     
     public var id: ResourceIdentifier<PlanTime>
-    public var name: String?
-    public var startsAt: Date
-    public var endsAt: Date?
     
-    public enum `Type`: String {
+    public init(id: ResourceIdentifier<PlanTime>) {
+        self.id = id
+    }
+}
+
+// MARK: - Structure
+
+extension PlanTime: ResourceProtocol {
+    
+    public enum `Type`: String, Codable {
         case service
         case rehearsal
         case other
     }
-    public let type: Type
-    //let liveStartsAt: Date?
-    //let liveEndsAt: Date?
-    // Edited dates
     
-    public init(resource: Resource) throws {
-        id = try resource.identifer.specialize()
+    public struct Attributes: Codable {
         
-        name = try resource.attributeIfPresent(for: "name")?.asString()
-        startsAt = try resource.attribute(for: "starts_at").asDate()
-        endsAt = try resource.attribute(for: "ends_at").asDate()
-        
-        guard let type = try Type(rawValue: resource.attribute(for: "time_type").asString()) else {
-            throw ResourceDecodeError.failedToParseAttribute("time_type")
+        enum CodingKeys: String, CodingKey {
+            case name
+            case type
+            case createdAt = "created_at"
+            case updatedAt = "updated_at"
+            case startsAt = "starts_at"
+            case endsAt = "ends_at"
+            case liveStartsAt = "live_starts_at"
+            case liveEndsAt = "live_ends_at"
+            case teamReminders = "team_reminders"
         }
-        self.type = type
+        
+        public var name: String?
+        
+        public var type: Type
+        
+        public var createdAt: Date?
+        
+        public var updatedAt: Date?
+        
+        public var startsAt: Date
+        
+        public var endsAt: Date?
+        
+        public var liveStartsAt: Date?
+        
+        public var liveEndsAt: Date?
+        
+        /// TeamID to days notice.
+        public var teamReminders: [String: Int]?
     }
+    
+    public struct Relationships: Codable {
+        
+//        enum CodingKeys: String, CodingKey {
+//            case assignedTeams = "assigned_teams"
+//        }
+//
+//        public var assignedTeams: ResourceIdentifier<Folder>? // To-many
+    }
+    
+    public typealias Links = Empty
+    
+    public typealias Meta = Empty
 }

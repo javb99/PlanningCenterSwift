@@ -8,22 +8,22 @@
 import XCTest
 @testable import PlanningCenterSwift
 
-struct JsonSample<R: ResourceDecodable> {
-    //var modelType: ResourceDecodable.Type
-    var live: String
-    var spec: String
-    
-    var liveData: Data {
-        return live.data(using: .utf8)!
-    }
-    var specData: Data {
-        return spec.data(using: .utf8)!
-    }
-    
-    var modelTypeName: String {
-        return String(describing: R.self)
-    }
-}
+//struct JsonSample<R: ResourceDecodable> {
+//    //var modelType: ResourceDecodable.Type
+//    var live: String
+//    var spec: String
+//    
+//    var liveData: Data {
+//        return live.data(using: .utf8)!
+//    }
+//    var specData: Data {
+//        return spec.data(using: .utf8)!
+//    }
+//    
+//    var modelTypeName: String {
+//        return String(describing: R.self)
+//    }
+//}
 
 //final class ResourceTests: XCTestCase {
 //

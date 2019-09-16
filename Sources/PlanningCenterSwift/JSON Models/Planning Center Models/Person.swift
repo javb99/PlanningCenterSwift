@@ -6,10 +6,12 @@
 //
 
 import Foundation
-import GenericJSON
+import JSONAPISpec
 
 public struct Person: ResourceProtocol {
+    
     public struct Attributes: Codable {
+        
         enum CodingKeys: String, CodingKey {
             case firstName = "first_name"
             case lastName = "last_name"
@@ -37,41 +39,66 @@ public struct Person: ResourceProtocol {
         }
         
         // MARK: Name Fields
+        
         public var firstName: String?
+        
         public var lastName: String?
+        
         public var namePrefix: String?
+        
         public var nameSuffix: String?
+        
         public var givenName: String?
+        
         public var middleName: String?
+        
         public var fullName: String?
+        
         public var nickname: String?
         
         // MARK: Date Fields
         public var createdAt: Date?
+        
         public var updatedAt: Date?
+        
         public var anniversary: Date?
+        
         public var birthdate: Date?
+        
         public var loggedInAt: Date?
         
         // MARK: Other Fields
+        
         public var photo: URL?
+        
         public var thumnailPhoto: URL?
+        
         public var permissions: String? // Model this?
+        
         public var maxPermissions: String? // TODO: Use an enum
+        
         public var isSiteAdmin: Bool?
+        
         public var notes: String
+        
         public var hasPassedBackgroundCheck: Bool?
+        
         public var status: String // TODO: Use an enum?
     }
     
     public struct Relationships: Codable {
+        
         enum CodingKeys: String, CodingKey {
-            case parent = "parent_id"
+            case createdBy = "created_by"
+            case updatedBy = "updated_by"
         }
+        
         public var createdBy: ResourceIdentifier<Person>?
+        
         public var updatedBy: ResourceIdentifier<Person>?
     }
     
     public typealias Links = Empty
+    
     public typealias Meta = Empty
 }

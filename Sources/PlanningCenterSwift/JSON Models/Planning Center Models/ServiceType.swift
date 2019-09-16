@@ -7,40 +7,69 @@
 //
 
 import Foundation
+import JSONAPISpec
 
-//struct ServiceType: PCResourceDecodable {
-//    let id: String
-//    let name: String
-//
-//    init(id: String, name: String) {
-//        self.id = id
-//        self.name = name
-//    }
-//
-//    init(resource: Resource) throws {
-//        assert(resource.type == "ServiceType", "Resource is not the correct type.")
-//        id = resource.id
-//        name = try resource.attribute(for: "name").asString()
-//    }
-//}
-
-public struct ServiceType: ResourceDecodable {
-    
-    public var id: ResourceIdentifier<ServiceType>
-    
-    /// The name of the service type as seen by the user.
-    public var name: String
-    
-    public init(id: String, name: String) {
-        self.id = ResourceIdentifier<ServiceType>(id: id)
-        self.name = name
-    }
+extension Models {
+    public struct ServiceType {}
 }
 
-extension ServiceType {
-
-    public init(resource: Resource) throws {
-        id = try resource.identifer.specialize()
-        name = try resource.attribute(for: "name").asString()
+extension Models.ServiceType: ResourceProtocol {
+    
+    public struct Attributes: Codable {
+        
+        enum CodingKeys: String, CodingKey {
+            case name
+            case sequenceIndex = "sequence"
+            case areAttachmentTypesEnabled = "attachement_types_enabled"
+            case createdAt = "created_at"
+            case updatedAt = "updated_at"
+            case archivedAt = "archived_at"
+            case deletedAt = "deleted_at"
+            case permissions
+            case backgroundCheckPermissions = "background_check_permissions"
+            case commentPermissions = "comment_permissions"
+            case frequency
+            case lastPlanFrom = "last_plan_from"
+        }
+        
+        public var name: String?
+        
+        public var sequenceIndex: Int?
+        
+        public var areAttachmentTypesEnabled: Bool?
+        
+        public var createdAt: Date?
+        
+        public var updatedAt: Date?
+        
+        public var archivedAt: Date?
+        
+        public var deletedAt: Date?
+        
+        // TODO: Add structs or enums for these types.
+        
+        public var permissions: String?
+        
+        public var backgroundCheckPermissions: String?
+        
+        public var commentPermissions: String?
+        
+        public var frequency: String?
+        
+        public var lastPlanFrom: String?
+        
     }
+    
+    public struct Relationships: Codable {
+        
+        enum CodingKeys: String, CodingKey {
+            case parent = "parent_id"
+        }
+        
+        public var parent: ToOneRelationship<Models.Folder>?
+    }
+    
+    public typealias Links = Empty
+    
+    public typealias Meta = Empty
 }

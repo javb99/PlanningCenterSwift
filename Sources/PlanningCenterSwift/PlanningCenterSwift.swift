@@ -2,6 +2,8 @@ struct PlanningCenterSwift {
     var text = "Hello, World!"
 }
 
+import Foundation
+
 public let pcjsonDateAndTimeFormatter = DateFormatter.iso8601
 
 extension DateFormatter {
@@ -13,5 +15,23 @@ extension DateFormatter {
         formatter.timeZone = TimeZone(secondsFromGMT: 0)
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
         return formatter
+    }()
+}
+
+extension JSONDecoder {
+    
+    static var pco: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }()
+}
+
+extension JSONEncoder {
+    
+    static var pco: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        return encoder
     }()
 }

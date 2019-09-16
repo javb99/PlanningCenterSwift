@@ -22,7 +22,6 @@ final class RouteTests: XCTestCase {
         XCTAssertEqual(Endpoints.folders[id: "10"].subfolders.path.buildString(), "/folders/10/folders")
         XCTAssertEqual(Endpoints.folders[id: "10"].subfolders[id: "20"].path.buildString(), "/folders/10/folders/20")
         XCTAssertEqual(Endpoints.folders[id: "10"].subfolders[id: "20"].serviceTypes[id: "12"].path.buildString(), "/folders/10/folders/20/service_types/12")
-        Endpoints.folders[id: "10"].delete
     }
     
     func testUpdatableEndpoints() {
