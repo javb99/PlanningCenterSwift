@@ -10,151 +10,63 @@ import JSONAPISpec
 import XCTest
 @testable import PlanningCenterSwift
 
-struct ConstantAuthProvider: AuthenticationProvider {
-    var authenticationHeader: (key: String, value: String)? = ("Hello", "World")
-}
-
-struct NoBodyEndpoint: Endpoint {
-    var method: HTTPMethod = .get
-    
-    var path: Path = .init(components: ["a","simple","path"])
-    
-    typealias RequestBody = Empty
-    
-    typealias ResponseBody = Empty
-}
-
-struct PostEndpoint: Endpoint {
-    var method: HTTPMethod = .post
-    
-    var path: Path = .init(components: ["a","simple", "post", "path"])
-    
-    typealias RequestBody = [Int]
-    
-    typealias ResponseBody = Empty
-}
-
 final class JSONRequestBuilderTests: XCTestCase {
 
-    func test_buildRequest_noBody() {
-        let builder = JSONRequestBuilder(baseURL: URL(string: "api.com")!, authenticationProvider: ConstantAuthProvider(), encoder: JSONEncoder())
-        let endpoint = NoBodyEndpoint()
+    let sut = JSONRequestBuilder(baseURL: URL(string: "api.com")!, authenticationProvider: ConstantAuthProvider(), encoder: JSONEncoder())
+    
+    func test_buildRequest_withNoBody_encodesSuccessfully() {
+        let endpoint = GenericEndpoint<Empty, Empty>(path: .init(components: ["a","simple", "path"]))
         
-        guard let request = builder.buildRequest(for: endpoint) else {
-            XCTFail("Built a nil request")
-            return
-        }
+        let request = sut.buildRequest(for: endpoint)
         
-        XCTAssertEqual(request.httpMethod, HTTPMethod.get.rawValue)
-        XCTAssertEqual(request.allHTTPHeaderFields?["Hello"], "World")
-        XCTAssertEqual(request.url?.absoluteString, "api.com/a/simple/path")
-        XCTAssertEqual(request.httpBody, nil)
+        XCTAssertNotNil(request)
+        XCTAssertEqual(request?.httpBody, nil)
     }
     
-    func test_buildRequest_withBody() {
-        let builder = JSONRequestBuilder(baseURL: URL(string: "api.com")!, authenticationProvider: ConstantAuthProvider(), encoder: JSONEncoder())
-        let endpoint = PostEndpoint()
+    func test_buildRequest_withBody_encodesSuccessfully() {
+        let endpoint = GenericEndpoint<[Int],Empty>(method: .post)
         
-        guard let request = builder.buildRequest(for: endpoint, body: [1,2,3]) else {
-            XCTFail("Built a nil request")
-            return
-        }
+        let request = sut.buildRequest(for: endpoint, body: [1,2,3])
         
-        XCTAssertEqual(request.httpMethod, HTTPMethod.post.rawValue)
-        XCTAssertEqual(request.allHTTPHeaderFields?["Hello"], "World")
-        XCTAssertEqual(request.url?.absoluteString, "api.com/a/simple/post/path")
-        XCTAssertEqual(request.httpBody, try! JSONEncoder().encode([1,2,3]))
+        XCTAssertNotNil(request)
+        XCTAssertEqual(request?.httpBody, try! JSONEncoder().encode([1,2,3]))
+    }
+    
+    func test_buildRequest_httpMethod_get() {
+        let getEndpoint = GenericEndpoint<Empty,Empty>(method: .get)
+        XCTAssertEqual(sut.buildRequest(for: getEndpoint)?.httpMethod, HTTPMethod.get.rawValue)
+    }
+    
+    func test_buildRequest_httpMethod_post() {
+        let postEndpoint = GenericEndpoint<[Int],Empty>(method: .post)
+        XCTAssertEqual(sut.buildRequest(for: postEndpoint, body: [])?.httpMethod, HTTPMethod.post.rawValue)
+    }
+    
+    func test_buildRequest_authProvided_success() {
+        let authProvider = ConstantAuthProvider(authenticationHeader: ("key", "value"))
+        let sut = JSONRequestBuilder(baseURL: URL(string: "api.com")!, authenticationProvider: authProvider, encoder: JSONEncoder())
+        let endpoint = GenericEndpoint<Empty,Empty>(method: .get)
+        
+        XCTAssertEqual(sut.buildRequest(for: endpoint)?.value(forHTTPHeaderField: "key"), "value")
+    }
+    
+    func test_buildRequest_noAuthProvided_fails() {
+        let authProvider = ConstantAuthProvider(authenticationHeader: nil)
+        let sut = JSONRequestBuilder(baseURL: URL(string: "api.com")!, authenticationProvider: authProvider, encoder: JSONEncoder())
+        let endpoint = GenericEndpoint<Empty,Empty>(method: .get)
+        
+        XCTAssertNil(sut.buildRequest(for: endpoint))
     }
 }
 
+// MARK: Helpers
 
-extension HTTPURLResponse {
-    static var stub200: HTTPURLResponse {
-        HTTPURLResponse(url: URL(string: "api.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)!
-    }
+struct ConstantAuthProvider: AuthenticationProvider {
+    var authenticationHeader: (key: String, value: String)? = ("key", "value")
 }
 
-struct ResponseEndpoint: Endpoint {
+struct GenericEndpoint<RequestBody: Encodable, ResponseBody: Decodable>: Endpoint {
     var method: HTTPMethod = .get
     
-    var path: Path = .init(components: ["a","simple", "post", "path"])
-    
-    typealias RequestBody = Empty
-    
-    typealias ResponseBody = [Int]
+    var path: Path = .init(components: ["a","simple", "path"])
 }
-
-struct EmptyResponseEndpoint: Endpoint {
-    var method: HTTPMethod = .get
-    
-    var path: Path = .init(components: ["a","simple", "post", "path"])
-    
-    typealias RequestBody = Empty
-    
-    typealias ResponseBody = Empty
-}
-
-final class JSONResponseHandlerTests: XCTestCase {
-    
-    let handler = JSONResponseHandler(decoder: JSONDecoder())
-    let properBody = try! JSONEncoder().encode([1,2,3])
-
-    func test_handleRequest_expectsEmpty_getsNil_success() {
-        let result = handler.handleResponse(to: EmptyResponseEndpoint(), makeResponse(), data: nil, error: nil)
-        XCTAssertEqual((try result.get()).2, Empty())
-    }
-    
-    func test_handleRequest_properBody_success() {
-        let result = handler.handleResponse(to: ResponseEndpoint(), makeResponse(), data: properBody, error: nil)
-        XCTAssertEqual((try result.get()).2, [1,2,3])
-    }
-    
-    func test_handleRequest_malformedBody_fails() {
-        let result = handler.handleResponse(to: ResponseEndpoint(), makeResponse(), data: try! JSONEncoder().encode(["1", "2", "3"]), error: nil)
-            
-        XCTAssertNotNil(result.asFailure)
-    }
-    
-    func test_handleRequest_unauthorized_fails() {
-        let result = handler.handleResponse(to: ResponseEndpoint(), makeResponse(status: 401), data: properBody, error: nil)
-            
-        XCTAssertNotNil(result.asFailure)
-    }
-    
-    func test_handleRequest_clientError_fails() {
-        let result = handler.handleResponse(to: ResponseEndpoint(), makeResponse(status: 404), data: properBody, error: nil)
-        
-        XCTAssertNotNil(result.asFailure)
-    }
-    
-    func test_handleRequest_requestFailure_failsWithSystemError() {
-        let error = URLError(.dnsLookupFailed)
-        let result = handler.handleResponse(to: ResponseEndpoint(), makeResponse(), data: nil, error: error)
-            
-        XCTAssertNotNil(result.asFailure)
-    }
-    
-    func test_handleRequest_requestFailure_noError_fails() {
-        let result = handler.handleResponse(to: ResponseEndpoint(), makeResponse(), data: nil, error: nil)
-            
-        XCTAssertNotNil(result.asFailure)
-    }
-    
-    // MARK: Helpers
-    
-    func makeResponse(status: Int = 200) -> HTTPURLResponse {
-        HTTPURLResponse(url: URL(string: "api.com")!, statusCode: status, httpVersion: nil, headerFields: nil)!
-    }
-}
-
-extension Result {
-    var asFailure: Failure? {
-        switch self {
-        case let .failure(error):
-            return error
-        case .success(_):
-            return nil
-        }
-    }
-}
-
