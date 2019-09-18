@@ -21,20 +21,6 @@ public protocol Endpoint {
     associatedtype ResponseBody: Decodable
 }
 
-extension Endpoint where RequestBody == Empty {
-    var request: URLRequest {
-        return URLRequest(url: URL(string: path.buildString(), relativeTo: baseURL)!)
-    }
-}
-
-extension Endpoint {
-    func request(with body: RequestBody) throws -> URLRequest {
-        var request = URLRequest(url: URL(string: path.buildString(), relativeTo: baseURL)!)
-        request.httpBody = try JSONEncoder.init().encode(body)
-        return request
-    }
-}
-
 public struct AnyEndpoint<RequestBody, ResponseBody>: Endpoint
 where RequestBody: Encodable, ResponseBody: Decodable {
     public var method: HTTPMethod = .get
@@ -119,9 +105,9 @@ extension Array: QueryParamProviding where Element: QueryParamProviding {
     public var queryParams: [URLQueryItem] { self.flatMap{$0.queryParams} }
 }
 
-public enum HTTPMethod {
-    case get
-    case post
-    case patch
-    case delete
+public enum HTTPMethod: String {
+    case get = "GET"
+    case post = "POST"
+    case patch = "PATCH"
+    case delete = "DELETE"
 }

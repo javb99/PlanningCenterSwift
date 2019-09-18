@@ -6,9 +6,9 @@
 //
 
 import Foundation
-import Combine
+import JSONAPISpec
 
-enum NetworkError: Error {
+public enum NetworkError: Error {
     case noAuthorizationProvider
     case noAuthenticationHeader   // OAuth token not available.
     case notAuthorized            // Not authorized response from server.
@@ -20,7 +20,7 @@ enum NetworkError: Error {
 
 extension NetworkError: CustomStringConvertible {
     
-    var description: String {
+    public var description: String {
         switch self {
         case .noAuthenticationHeader:
             return "No authenticationHeader provided."
@@ -42,82 +42,53 @@ extension NetworkError: CustomStringConvertible {
 
 public class URLSessionService {
     
-    public var session: URLSession = .shared
+    public let session: URLSession
     
-    private let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        return decoder
-    }()
+    public let requestBuilder: RequestBuilder
     
-    private let encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        return encoder
-    }()
+    public let responseHandler: ResponseHandler
     
-    public var authenticationProvider: AuthenticationProvider? = nil
-    
-    public init(session: URLSession = .shared, authenticationProvider: AuthenticationProvider? = nil) {
-        self.authenticationProvider = authenticationProvider
+    public init(requestBuilder: RequestBuilder, responseHandler: ResponseHandler, session: URLSession) {
+        self.requestBuilder = requestBuilder
         self.session = session
+        self.responseHandler = responseHandler
     }
     
-    public func fetch<Endpt>(_ endpoint: Endpt) where Endpt: Endpoint {
-        
-    }
+    public typealias Completion<Endpt: Endpoint> = (Result<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>) -> ()
     
-    public func send<Endpt>(body: Endpt.RequestBody, to: Endpt) where Endpt: Endpoint {
-        
-    }
     
-    private func send<Endpt>(request: URLRequest, for endpoint: Endpt, completion: @escaping (Result<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>) -> ()) where Endpt: Endpoint {
+    // MARK: Interface
+    
+    
+    /// Execute a request for an endpoint that doesn't require a request body.
+    public func fetch<Endpt: Endpoint>(_ endpoint: Endpt, completion: @escaping Completion<Endpt>) where Endpt.RequestBody == Empty {
         
-        var request = request
-        
-        // Add the authentication header.
-        guard let provider = authenticationProvider else {
-            completion(.failure(.noAuthorizationProvider))
-            return
+        guard let request = requestBuilder.buildRequest(for: endpoint) else {
+            fatalError("Failed to build request.")
         }
-        guard let (headerField, value) = provider.authenticationHeader else {
-            completion(.failure(.noAuthenticationHeader))
-            return
+        send(request, for: endpoint, completion: completion)
+    }
+    
+    /// Execute a request for an endpoint that requires a request body.
+    public func send<Endpt: Endpoint>(body: Endpt.RequestBody, to endpoint: Endpt, completion: @escaping Completion<Endpt>) {
+        
+        guard let request = requestBuilder.buildRequest(for: endpoint, body: body) else {
+            fatalError("Failed to build request.")
         }
-        request.addValue(value, forHTTPHeaderField: headerField)
+        send(request, for: endpoint, completion: completion)
+    }
+    
+    
+    // MARK: Implementation
+    
+    
+    private func send<Endpt>(_ request: URLRequest, for endpoint: Endpt, completion: @escaping Completion<Endpt>) where Endpt: Endpoint {
         
         let task = session.dataTask(with: request) { (data, response, error) in
             
-            let result = self.handleResponse(to: endpoint, response, data: data, error: error)
+            let result = self.responseHandler.handleResponse(to: endpoint, response, data: data, error: error)
             completion(result)
         }
         task.resume()
-    }
-    
-    func handleResponse<Endpt: Endpoint>(to endpoint: Endpt, _ response: URLResponse?, data: Data?, error: Error?)
-        -> Result<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError> {
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            return .failure(.noHTTPResponse)
-        }
-        
-        guard httpResponse.statusCode != 401 else {
-            return .failure(.notAuthorized)
-        }
-        
-        guard let data = data else {
-            if let error = error {
-                return .failure(.system(error))
-            } else {
-                return .failure(.unknown)
-            }
-        }
-        
-        let model: Endpt.ResponseBody
-        do {
-            model = try decoder.decode(Endpt.ResponseBody.self, from: data)
-        } catch {
-            return .failure(.decode(error))
-        }
-        
-        return .success((httpResponse, endpoint, model))
     }
 }
