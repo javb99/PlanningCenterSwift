@@ -15,11 +15,15 @@ final class FolderTests: XCTestCase {
         let folder: Resource<Models.Folder> = try! decode(FolderJSON.full)
         
         XCTAssertEqual(folder.identifer.id, "709999")
-        XCTAssertEqual(folder.parent?.data.id, "700011")
         XCTAssertEqual(folder.name, "Vancouver - STUDENTS Ministry")
         XCTAssertEqual(folder.container, "VANCOUVER - Ministry Gatherings")
         XCTAssertNotNil(folder.createdAt)
         XCTAssertNotNil(folder.updatedAt)
+        
+        XCTAssertEqual(folder.parent?.data.id, "700011")
+        XCTAssertNotNil(folder.ancestors)
+        let ancestorIDs = folder.ancestors?.data.map{$0.id}
+        XCTAssertTrue(ancestorIDs!.contains("700011"))
     }
     
     func test_decode_minimumFields_success() {

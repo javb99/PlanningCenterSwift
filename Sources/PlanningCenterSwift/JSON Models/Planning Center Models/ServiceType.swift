@@ -34,11 +34,11 @@ extension Models.ServiceType: ResourceProtocol {
         
         public var name: String?
         
-        public var sequenceIndex: Int?
+        public var sequenceIndex: Int
         
         public var areAttachmentTypesEnabled: Bool?
         
-        public var createdAt: Date?
+        public var createdAt: Date
         
         public var updatedAt: Date?
         

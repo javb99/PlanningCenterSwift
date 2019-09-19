@@ -31,7 +31,7 @@ extension Models.Folder: ResourceProtocol {
         
         public var name: String?
         
-        public var createdAt: Date?
+        public var createdAt: Date
         
         public var updatedAt: Date?
         
@@ -40,11 +40,9 @@ extension Models.Folder: ResourceProtocol {
     
     public struct Relationships: Codable {
         
-        enum CodingKeys: String, CodingKey {
-            case parent = "parent"
-        }
-        
         public var parent: ToOneRelationship<Models.Folder>?
+        
+        public var ancestors: ToManyRelationship<Models.Folder>?
     }
     
     public typealias Links = Empty
