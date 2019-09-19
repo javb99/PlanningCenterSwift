@@ -41,7 +41,7 @@ extension Models.Folder: ResourceProtocol {
     public struct Relationships: Codable {
         
         enum CodingKeys: String, CodingKey {
-            case parent = "parent_id"
+            case parent = "parent"
         }
         
         public var parent: ToOneRelationship<Models.Folder>?
