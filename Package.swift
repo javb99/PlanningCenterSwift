@@ -17,8 +17,6 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/javb99/generic-json-swift.git", Package.Dependency.Requirement.branch("master")),
         .package(path: "/Users/josephvanboxtel/Documents/Programming/SwiftPackages/JSONAPI")
     ],
     targets: [
@@ -26,7 +24,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "PlanningCenterSwift",
-            dependencies: ["GenericJSON", "JSONAPISpec"]),
+            dependencies: ["JSONAPISpec"]),
         .testTarget(
             name: "PlanningCenterSwiftTests",
             dependencies: ["PlanningCenterSwift"]),
