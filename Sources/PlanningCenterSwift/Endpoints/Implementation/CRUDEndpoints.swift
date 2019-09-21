@@ -28,7 +28,7 @@ WrappedEndpoint: SingleResourceEndpoint {
         wrapped = .init(basePath: basePath, id: id)
     }
     
-    subscript<T>(dynamicMember keyPath: KeyPath<WrappedEndpoint, T>) -> T {
+    public subscript<T>(dynamicMember keyPath: KeyPath<WrappedEndpoint, T>) -> T {
         get {
             wrapped[keyPath: keyPath]
         }
@@ -58,7 +58,7 @@ WrappedEndpoint: SingleResourceEndpoint {
         wrapped = .init(basePath: basePath, id: id)
     }
     
-    subscript<T>(dynamicMember keyPath: KeyPath<WrappedEndpoint, T>) -> T {
+    public subscript<T>(dynamicMember keyPath: KeyPath<WrappedEndpoint, T>) -> T {
         get {
             wrapped[keyPath: keyPath]
         }

@@ -58,7 +58,7 @@ public struct CreateEndpoint<ResourceType>: Endpoint where ResourceType: Resourc
     
     public var path: Path
     
-    init(path: Path) {
+    public init(path: Path) {
         self.path = path
     }
     
