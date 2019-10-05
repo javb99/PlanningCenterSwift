@@ -41,7 +41,11 @@ public class JSONRequestBuilder: RequestBuilder {
         let url = endpoint.path.components.reduce(baseURL) { (url, component) -> URL in
             url.appendingPathComponent(component, isDirectory: false)
         }
-        var request = URLRequest(url: url)
+        var comps = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        comps?.queryItems = endpoint.queryParams
+        guard let fullURL = comps?.url else { return nil }
+        
+        var request = URLRequest(url: fullURL)
         request.httpBody = body
         request.httpMethod = endpoint.method.rawValue
         
