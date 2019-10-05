@@ -14,6 +14,8 @@ WrappedEndpoint: SingleResourceEndpoint {
     public typealias WrappedResourceDoc = ResourceDocument<WrappedEndpoint.ResourceType>
     public var update: AnyEndpoint<WrappedResourceDoc, WrappedResourceDoc> { .init(method: .patch, path: path) }
     
+    public typealias ResourceType = WrappedEndpoint.ResourceType
+    
     public typealias RequestBody = WrappedEndpoint.RequestBody
     
     public typealias ResponseBody = WrappedEndpoint.ResponseBody
@@ -45,6 +47,8 @@ WrappedEndpoint: SingleResourceEndpoint {
     
     public typealias WrappedResourceDoc = ResourceDocument<WrappedEndpoint.ResourceType>
     public var delete: AnyEndpoint<Empty, Empty> { .init(method: .delete, path: path) }
+    
+    public typealias ResourceType = WrappedEndpoint.ResourceType
     
     public typealias RequestBody = WrappedEndpoint.RequestBody
     

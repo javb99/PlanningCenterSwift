@@ -43,10 +43,6 @@ public protocol Orderable: QueryParamProviding {}
 
 public protocol Queryable: QueryParamProviding {}
 
-public protocol Includable: QueryParamProviding {
-    associatedtype ResourceType: ResourceProtocol
-}
-
 extension Never: QueryParamProviding {
     public var queryParams: [URLQueryItem] { [] }
 }

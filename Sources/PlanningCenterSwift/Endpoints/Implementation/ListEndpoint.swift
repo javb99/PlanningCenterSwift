@@ -8,8 +8,11 @@
 import Foundation
 import JSONAPISpec
 
-public protocol SingleResourceEndpoint: Endpoint {
+public protocol ResourceEndpoint: Endpoint {
     associatedtype ResourceType: ResourceProtocol
+}
+
+public protocol SingleResourceEndpoint: ResourceEndpoint, _IncludableEndpoint {
     init(basePath: Path, id: ResourceIdentifier<ResourceType>)
 }
 
@@ -17,9 +20,9 @@ extension SingleResourceEndpoint {
     public var method: HTTPMethod { .get }
 }
 
-public protocol ResourceListEndpoint: Endpoint where
+public protocol ResourceListEndpoint: ResourceEndpoint, _IncludableEndpoint where
     RequestBody == Empty,
-    ResponseBody == ResourceCollectionDocument<ResourceType> {
+ResponseBody == ResourceCollectionDocument<ResourceType>, ResourceType == InstanceEndpoint.ResourceType {
     
     associatedtype InstanceEndpoint: SingleResourceEndpoint
     
@@ -30,8 +33,6 @@ public protocol ResourceListEndpoint: Endpoint where
 
 extension ResourceListEndpoint {
     
-    public typealias ResourceType = InstanceEndpoint.ResourceType
-
     public var method: HTTPMethod { .get }
     
     public subscript(id id: ResourceIdentifier<ResourceType>) -> InstanceEndpoint {
@@ -41,6 +42,8 @@ extension ResourceListEndpoint {
 
 public struct ListEndpoint<InstanceEndpoint>: ResourceListEndpoint where
 InstanceEndpoint: SingleResourceEndpoint {
+    
+    public typealias ResourceType = InstanceEndpoint.ResourceType
     
     public typealias RequestBody = Empty
     
@@ -73,6 +76,8 @@ InstanceEndpoint: SingleResourceEndpoint {
     public var create: CreateEndpoint<ResourceType> { .init(path: path) }
     
     // Same as ListEndpoint...
+    
+    public typealias ResourceType = InstanceEndpoint.ResourceType
     
     public typealias RequestBody = Empty
     
