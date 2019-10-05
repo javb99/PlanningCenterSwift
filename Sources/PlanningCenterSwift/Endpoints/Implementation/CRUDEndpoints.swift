@@ -22,6 +22,8 @@ WrappedEndpoint: SingleResourceEndpoint {
     
     public var path: Path { wrapped.path }
     
+    public var queryParams: [URLQueryItem] { wrapped.queryParams }
+    
     var wrapped: WrappedEndpoint
     
     public init(basePath: Path, id: ResourceIdentifier<WrappedEndpoint.ResourceType>) {
@@ -51,6 +53,8 @@ WrappedEndpoint: SingleResourceEndpoint {
     public var method: HTTPMethod { wrapped.method }
     
     public var path: Path { wrapped.path }
+    
+    public var queryParams: [URLQueryItem] { wrapped.queryParams }
     
     var wrapped: WrappedEndpoint
     

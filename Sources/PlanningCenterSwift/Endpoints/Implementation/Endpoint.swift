@@ -16,9 +16,14 @@ public protocol Endpoint {
     
     var method: HTTPMethod { get }
     var path: Path { get }
+    var queryParams: [URLQueryItem] { get }
 
     associatedtype RequestBody: Encodable
     associatedtype ResponseBody: Decodable
+}
+
+extension Endpoint {
+    public var queryParams: [URLQueryItem] { [] }
 }
 
 public struct AnyEndpoint<RequestBody, ResponseBody>: Endpoint
@@ -26,13 +31,13 @@ where RequestBody: Encodable, ResponseBody: Decodable {
     public var method: HTTPMethod = .get
     
     public var path: Path
+    
+    public var queryParams: [URLQueryItem] = []
 }
 
 public protocol QueryParamProviding {
     var queryParams: [URLQueryItem] { get }
 }
-
-public protocol Filterable: QueryParamProviding {}
 
 public protocol Orderable: QueryParamProviding {}
 
