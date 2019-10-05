@@ -18,7 +18,7 @@ extension Endpoints.Team {
 
 extension Endpoints {
     
-    public static var teams = CRUDEndpoint<Team>(path: ["team"])
+    public static var teams = CRUDEndpoint<Team>(path: ["teams"])
 
     public struct Team: SingleResourceEndpoint {
         
