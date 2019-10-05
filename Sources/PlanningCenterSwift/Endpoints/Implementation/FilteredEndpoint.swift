@@ -14,11 +14,11 @@ public protocol Filterable: Endpoint {
 }
 
 extension Filterable where Self: Endpoint {
-    func filter(_ filter: Filter) -> AnyEndpoint<RequestBody, ResponseBody> {
+    public func filter(_ filter: Filter) -> AnyEndpoint<RequestBody, ResponseBody> {
         AnyEndpoint(method: self.method, path: self.path, queryParams: self.queryParams + filter.queryParams)
     }
     
-    func filter(_ filters: [Filter]) -> AnyEndpoint<RequestBody, ResponseBody> {
+    public func filter(_ filters: [Filter]) -> AnyEndpoint<RequestBody, ResponseBody> {
         AnyEndpoint(method: self.method, path: self.path, queryParams: self.queryParams + filters.flatMap{$0.queryParams})
     }
 }
