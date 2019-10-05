@@ -8,9 +8,44 @@
 import Foundation
 import JSONAPISpec
 
+// MARK: - ServiceType Specific -
+
 extension Endpoints.ServiceType {
-    public var plans: ListEndpoint<Endpoints.Plan> { .init(path: path.appending("plans")) }
+    public var plans: Filtered<ListEndpoint<Endpoints.Plan>, PlanFilter> {
+        Filtered(ListEndpoint<Endpoints.Plan>(path: path.appending("plans")))
+    }
 }
+
+extension Endpoints.ServiceType {
+    public enum PlanFilter {
+        case after(Date)
+        case before(Date)
+        case future
+        case noDates
+        case past
+    }
+}
+
+extension Endpoints.ServiceType.PlanFilter: QueryParamProviding {
+    public var queryParams: [URLQueryItem] {
+        switch self {
+        case .noDates:
+            return [URLQueryItem(name: "filter", value: "no_dates")]
+        case let .before(date):
+            let stringRep = pcjsonDateAndTimeFormatter.string(from: date)
+            return [URLQueryItem(name: "filter[after]", value: stringRep)]
+        case let .after(date):
+            let stringRep = pcjsonDateAndTimeFormatter.string(from: date)
+            return [URLQueryItem(name: "filter[after]", value: stringRep)]
+        case .future:
+            return [URLQueryItem(name: "filter", value: "future")]
+        case .past:
+            return [URLQueryItem(name: "filter", value: "past")]
+        }
+    }
+}
+
+// MARK: - Boilerplate -
 
 extension Endpoints {
 
@@ -30,8 +65,6 @@ extension Endpoints {
             path = basePath.appending(id.id)
         }
 
-//        public var plans: Plans { Plans(path: path + "/plans") }
-//
 //        public var unscopedPlans: Plans { Plans(path: path + "/unscoped_plans") }
 //
 //        public var planTimes: PlanTimes { PlanTimes(path: path + "/plan_times") }
