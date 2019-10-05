@@ -38,18 +38,18 @@ extension _IncludableEndpoint where ResponseBody == ResourceCollectionDocument<R
     
     /// Warning: It is undefined to include twice on one endpoint.
     // Change the include type of the response body and add the `include` query parameter.
-    func include<Inc: Includable>(_ inc: Inc) -> AnyEndpoint<RequestBody, ResourceCollectionIncludesDocument<ResourceType, Inc.IncludeType>> {
+    public func include<Inc: Includable>(_ inc: Inc) -> AnyEndpoint<RequestBody, ResourceCollectionIncludesDocument<ResourceType, Inc.IncludeType>> {
         
         AnyEndpoint(method: self.method, path: self.path, queryParams: self.queryParams + inc.queryParams)
     }
     
     
-    func include<Resource: ResourceProtocol>(_ inc: Resource.Type) -> AnyEndpoint<RequestBody, ResourceCollectionIncludesDocument<ResourceType, ResourceInclude<Resource>.IncludeType>> {
+    public func include<Resource: ResourceProtocol>(_ inc: Resource.Type) -> AnyEndpoint<RequestBody, ResourceCollectionIncludesDocument<ResourceType, ResourceInclude<Resource>.IncludeType>> {
         
         include(ResourceInclude<Resource>())
     }
     
-    func include<Resource: ResourceProtocol>(listOf inc: Resource.Type) -> AnyEndpoint<RequestBody, ResourceCollectionIncludesDocument<ResourceType, ResourceListInclude<Resource>.IncludeType>> {
+    public func include<Resource: ResourceProtocol>(listOf inc: Resource.Type) -> AnyEndpoint<RequestBody, ResourceCollectionIncludesDocument<ResourceType, ResourceListInclude<Resource>.IncludeType>> {
         
         include(ResourceListInclude<Resource>())
     }
@@ -64,17 +64,17 @@ extension _IncludableEndpoint where ResponseBody == ResourceDocument<ResourceTyp
     
     /// Warning: It is undefined to include twice on one endpoint.
     // Change the include type of the response body and add the `include` query parameter.
-    func include<Inc: Includable>(_ inc: Inc) -> AnyEndpoint<RequestBody, ResourceIncludesDocument<ResourceType, Inc.IncludeType>> {
+    public func include<Inc: Includable>(_ inc: Inc) -> AnyEndpoint<RequestBody, ResourceIncludesDocument<ResourceType, Inc.IncludeType>> {
         
         AnyEndpoint(method: self.method, path: self.path, queryParams: self.queryParams + inc.queryParams)
     }
     
-    func include<Resource: ResourceProtocol>(_ inc: Resource.Type) -> AnyEndpoint<RequestBody, ResourceIncludesDocument<ResourceType, ResourceInclude<Resource>.IncludeType>> {
+    public func include<Resource: ResourceProtocol>(_ inc: Resource.Type) -> AnyEndpoint<RequestBody, ResourceIncludesDocument<ResourceType, ResourceInclude<Resource>.IncludeType>> {
         
         include(ResourceInclude<Resource>())
     }
     
-    func include<Resource: ResourceProtocol>(listOf inc: Resource.Type) -> AnyEndpoint<RequestBody, ResourceIncludesDocument<ResourceType, ResourceListInclude<Resource>.IncludeType>> {
+    public func include<Resource: ResourceProtocol>(listOf inc: Resource.Type) -> AnyEndpoint<RequestBody, ResourceIncludesDocument<ResourceType, ResourceListInclude<Resource>.IncludeType>> {
         
         include(ResourceListInclude<Resource>())
     }

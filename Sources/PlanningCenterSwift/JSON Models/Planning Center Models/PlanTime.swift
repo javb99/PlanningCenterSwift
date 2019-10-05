@@ -12,12 +12,12 @@ import Foundation
 import JSONAPISpec
 
 extension Models {
-    struct PlanTime {}
+    public struct PlanTime {}
 }
 
 extension Models.PlanTime: ResourceProtocol, PluralNameProviding {
 
-    static var pluralResourceType: String { "plan_times" }
+    public static var pluralResourceType: String { "plan_times" }
     
     public enum `Type`: String, Codable {
         case service
