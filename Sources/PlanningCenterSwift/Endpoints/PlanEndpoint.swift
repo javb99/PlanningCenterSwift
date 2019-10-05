@@ -18,7 +18,7 @@ extension Endpoints.Plan {
 
 extension Endpoints {
     
-    public static var plans = CRUDEndpoint<Folder>(path: ["plans"])
+    public static var plans = CRUDEndpoint<Plan>(path: ["plans"])
 
     public struct Plan: SingleResourceEndpoint {
         
