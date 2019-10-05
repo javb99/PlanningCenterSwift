@@ -14,6 +14,10 @@ extension Endpoints.ServiceType {
     public var plans: Filtered<ListEndpoint<Endpoints.Plan>, PlanFilter> {
         Filtered(ListEndpoint<Endpoints.Plan>(path: path.appending("plans")))
     }
+    
+    public var teams: ListEndpoint<Endpoints.Team> {
+        ListEndpoint<Endpoints.Team>(path: path.appending("teams"))
+    }
 }
 
 extension Endpoints.ServiceType {
