@@ -11,7 +11,7 @@ import JSONAPISpec
 // MARK: - Plan Specific -
 
 extension Endpoints.Plan {
-    
+    public var teamMembers: CreatableListEndpoint<Endpoints.PlanPerson> { .init(path: path.appending("team_members")) }
 }
 
 // MARK: - Boilerplate -

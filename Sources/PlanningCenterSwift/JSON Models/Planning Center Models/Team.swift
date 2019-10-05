@@ -45,7 +45,7 @@ extension Models.Team: ResourceProtocol {
 
         public var updatedAt: Date?
 
-        public var defaultStatus: PositionStatus?
+        public var defaultStatus: Models.PlanPerson.Status?
 
         public var defaultPrepareNotifications: Bool?
 
