@@ -45,7 +45,7 @@ extension Models.PlanPerson: ResourceProtocol {
 
         public var status: Status
         public var name: String
-        public var positionName: String
+        public var positionName: String? // I don't know why it's optional but it is.
         public var photoThumbnail: URL
         public var createdAt: Date
         public var updatedAt: Date
@@ -62,6 +62,7 @@ extension Models.PlanPerson: ResourceProtocol {
         enum CodingKeys: String, CodingKey {
             case plan
             case serviceType = "service_type"
+            case team
         }
 
 //        public var person: ToOneRelationship<Models.Person>
@@ -69,6 +70,8 @@ extension Models.PlanPerson: ResourceProtocol {
         public var plan: ToOneRelationship<Models.Plan>
         
         public var serviceType: ToOneRelationship<Models.ServiceType>
+        
+        public var team: ToOneRelationship<Models.Team>
 
 //        public var respondsTo: ToOneRelationship<Models.Person>
         
