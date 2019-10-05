@@ -8,6 +8,10 @@
 import Foundation
 import JSONAPISpec
 
+extension Endpoints.ServiceType {
+    public var plans: ListEndpoint<Endpoints.Plan> { .init(path: path.appending("plans")) }
+}
+
 extension Endpoints {
 
     public static var serviceTypes = CRUDEndpoint<ServiceType>(path: ["service_types"])
