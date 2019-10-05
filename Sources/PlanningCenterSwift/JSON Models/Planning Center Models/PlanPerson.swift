@@ -27,6 +27,21 @@ extension Models.PlanPerson {
 extension Models.PlanPerson: ResourceProtocol {
 
     public struct Attributes: Codable {
+        
+        enum CodingKeys: String, CodingKey {
+            case status
+            case name
+            case positionName = "team_position_name"
+            case photoThumbnail = "photo_thumbnail"
+            case createdAt = "created_at"
+            case updatedAt = "updated_at"
+            case notes
+            case declineReason = "decline_reason"
+            case statusUpdatedAt = "status_updated_at"
+            case notificationSentAt = "notification_sent_at"
+            case isNotificationPrepared = "prepare_notification"
+            case canAcceptPartial = "can_accept_partial"
+        }
 
         public var status: Status
         public var name: String
@@ -43,6 +58,11 @@ extension Models.PlanPerson: ResourceProtocol {
     }
 
     public struct Relationships: Codable {
+        
+        enum CodingKeys: String, CodingKey {
+            case plan
+            case serviceType = "service_type"
+        }
 
 //        public var person: ToOneRelationship<Models.Person>
         

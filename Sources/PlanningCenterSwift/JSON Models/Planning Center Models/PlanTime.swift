@@ -61,6 +61,10 @@ extension Models.PlanTime: ResourceProtocol, PluralNameProviding {
     
     public struct Relationships: Codable {
         
+        enum CodingKeys: String, CodingKey {
+            case assignedTeams = "assigned_teams"
+        }
+        
         public var assignedTeams: ToManyRelationship<Models.Team>
     }
     
