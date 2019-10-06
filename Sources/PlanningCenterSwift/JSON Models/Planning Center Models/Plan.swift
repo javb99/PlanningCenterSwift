@@ -98,8 +98,8 @@ extension Models.Plan: ResourceProtocol {
             case prevPlan = "previous_plan"
 //            case attachmentTypes = "attachment_types"
 //            case series
-//            case createdBy = "created_by"
-//            case updatedBy = "updated_by"
+            case createdBy = "created_by"
+            case updatedBy = "updated_by"
         }
 
         /// The containing service type.
@@ -114,10 +114,10 @@ extension Models.Plan: ResourceProtocol {
 //        public var attachmentTypes: ToManyRelationship<[AttachmentType]>?
 //        public var series: ToOneRelationship<Series>?
 //
-//        public var createdBy: ToOneRelationship<Person>?
-//
-//        /// The person to most recently update the plan.
-//        public var updatedBy: ToOneRelationship<Person>?
+        public var createdBy: ToOneRelationship<Models.Person>
+
+        /// The person to most recently update the plan.
+        public var updatedBy: ToOneRelationship<Models.Person>?
     }
 
     public typealias Links = Empty

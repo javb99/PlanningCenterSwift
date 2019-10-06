@@ -60,12 +60,14 @@ extension Models.PlanPerson: ResourceProtocol {
     public struct Relationships: Codable {
         
         enum CodingKeys: String, CodingKey {
+            case person
             case plan
             case serviceType = "service_type"
             case team
+            case respondsTo = "responds_to"
         }
 
-//        public var person: ToOneRelationship<Models.Person>
+        public var person: ToOneRelationship<Models.Person>
         
         public var plan: ToOneRelationship<Models.Plan>
         
@@ -73,7 +75,7 @@ extension Models.PlanPerson: ResourceProtocol {
         
         public var team: ToOneRelationship<Models.Team>
 
-//        public var respondsTo: ToOneRelationship<Models.Person>
+        public var respondsTo: ToOneRelationship<Models.Person>
         
 //        public var times: ToManyRelationship<Models.PlanTime>
         
