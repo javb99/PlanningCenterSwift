@@ -20,10 +20,11 @@ This project was developed alongside an iOS App, [Services Scheduler](), so it h
 
 ## Examples
 Use the `Endpoints` namespace to access the endpoints.
+
 | Path | Equivalent Key Path | Description |
 | `service_types` | `Endpoints.serviceTypes` | The first page of `ServiceType`s |
 | `service_types/1` | `Endpoints.serviceTypes[id: "1"]` | The `ServiceType` with id 1 |
-</table>
+
 
 ## External Links
 - [Planning Center Developer Documentation]()
