@@ -19,6 +19,13 @@ This project was developed alongside an iOS App, [Services Scheduler](), so it h
 ### Command Line
 
 ## Examples
+Use the `Endpoints` namespace to access the endpoints.
+<table>
+<tr>
+<td>Endpoint Key Path</td>
+<td>Path</td>
+</tr>
+</table>
 
 ## External Links
 - [Planning Center Developer Documentation]()
