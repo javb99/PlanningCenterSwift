@@ -20,9 +20,9 @@ final class FolderTests: XCTestCase {
         XCTAssertNotNil(folder.createdAt)
         XCTAssertNotNil(folder.updatedAt)
         
-        XCTAssertEqual(folder.parent?.data.id, "700011")
+        XCTAssertEqual(folder.parent?.data?.id, "700011")
         XCTAssertNotNil(folder.ancestors)
-        let ancestorIDs = folder.ancestors?.data.map{$0.id}
+        let ancestorIDs = folder.ancestors?.data?.map{$0.id}
         XCTAssertTrue(ancestorIDs!.contains("700011"))
     }
     
