@@ -5,13 +5,13 @@ Planning Center Swift is a library to make interaction with Planning Center's de
 ![Code completion is supported for endpoint completion](Documentation/endpointCodeCompletion.png)
 
 ## Goals
-> ### Code Completion
-> Routes and model properties should be discoverable using code completion in Xcode.
-> ### Synthesized Support of `Swift.Codable`
-> Models and Endpoints should not need to write custom conformance to Codable.
+### Code Completion
+Routes and model properties should be discoverable using code completion in Xcode.
+### Synthesized Support of `Swift.Codable`
+Models and Endpoints should not need to write custom conformance to Codable.
 
 ## Supported Platforms
-This project was developed alongside an iOS App, [Services Scheduler](), so it has been tested in that area. The goals for the project do include being usable on Linux for server side development.
+This project was developed alongside an iOS App, [Services Scheduler](), so it has been tested most throughly on that platform. The goals for the project do include being usable on Linux for server side development.
 
 ## Installation
 ### Xcode
