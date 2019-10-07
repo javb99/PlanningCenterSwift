@@ -21,10 +21,9 @@ This project was developed alongside an iOS App, [Services Scheduler](), so it h
 ## Examples
 Use the `Endpoints` namespace to access the endpoints.
 <table>
-<tr>
-<td>Endpoint Key Path</td>
-<td>Path</td>
-</tr>
+<tr> <td>Path</td> <td>Equivalent Key Path</td> <td>Description</td> </tr>
+<tr> <td>`service_types`</td> <td>`Endpoints.serviceTypes`</td> <td> The first page of `ServiceType`s</td> </tr>
+<tr> <td>`service_types/1`</td> <td>`Endpoints.serviceTypes[id: "1"]`</td> <td> The `ServiceType` with id 1 </td> </tr>
 </table>
 
 ## External Links
