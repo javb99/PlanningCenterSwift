@@ -14,9 +14,15 @@ Models and Endpoints should not need to write custom conformance to Codable.
 This project was developed alongside an iOS App, [Services Scheduler](), so it has been tested most throughly on that platform. The goals for the project do include being usable on Linux for server side development.
 
 ## Installation
+
+### Swift Package Manager Dependency
+    .package(url: "https://github.com/javb99/PlanningCenterSwift.git", .branch("master"))
+
 ### Xcode
 
 ### Command Line
+    git clone git@github.com:javb99/PlanningCenterSwift.git
+    open ./PlanningCenterSwift/Package.swift
 
 ## Examples
 Use the `Endpoints` namespace to access the endpoints.
