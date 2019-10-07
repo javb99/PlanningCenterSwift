@@ -11,7 +11,7 @@ Routes and model properties should be discoverable using code completion in Xcod
 Models and Endpoints should not need to write custom conformance to Codable.
 
 ## Supported Platforms
-This project was developed alongside an iOS App, [Services Scheduler](), so it has been tested most throughly on that platform. The goals for the project do include being usable on Linux for server side development.
+This project was developed alongside an iOS App, [Services Scheduler](), so it has been tested most throughly on that platform. The goals for the project do include being usable on Linux for server-side development.
 
 ## Installation
 
@@ -35,7 +35,7 @@ Use the `Endpoints` namespace to access the endpoints.
 
 ## External Links
 - [Planning Center Developer Documentation](https://developer.planning.center)
-- [JSON:API Spec](https://jsonapi.org)
+- [JSON:API 1.0 Specification](https://jsonapi.org)
 - [JSON:API Swift (The basis of this framework)](https://github.com/javb99/SwiftJSONAPI)
 
 
