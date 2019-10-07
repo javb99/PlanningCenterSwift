@@ -1,6 +1,6 @@
 # PlanningCenterSwift
 
-Planning Center Swift is a library to make interaction with Planning Center's developer API easy. It supports Xcode code completion by using generics and protocols to offer strong static typing of the endpoints and responses by Planning Center's API.
+Planning Center Swift is a library to make interaction with Planning Center's [developer API](https://developer.planning.center/docs/#/introduction) easy. It supports Xcode code completion by using generics and protocols to offer strong static typing of the endpoints and responses by Planning Center's API.
 
 ![Code completion is supported for endpoint completion](Documentation/endpointCodeCompletion.png)
 
@@ -28,9 +28,9 @@ Use the `Endpoints` namespace to access the endpoints.
 
 
 ## External Links
-- [Planning Center Developer Documentation]()
-- [JSON:API Spec]()
-- [JSON:API Swift (The basis of this framework)]()
+- [Planning Center Developer Documentation](https://developer.planning.center)
+- [JSON:API Spec](https://jsonapi.org)
+- [JSON:API Swift (The basis of this framework)](https://github.com/javb99/SwiftJSONAPI)
 
 
 ## Copyright
