@@ -23,6 +23,9 @@ This project was developed alongside an iOS App, [Services Scheduler](), so it h
 ### Command Line
     git clone git@github.com:javb99/PlanningCenterSwift.git
     open ./PlanningCenterSwift/Package.swift
+    
+## Dependencies
+This project is only dependent on [SwiftJSONAPI](https://github.com/javb99/SwiftJSONAPI). It is just the generic part of the model code that could potentially be resused for other APIs that conform to the [JSON:API 1.0 Specification](https://jsonapi.org). Both packages are maintained side by side.
 
 ## Examples
 Use the `Endpoints` namespace to access the endpoints.
