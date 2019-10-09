@@ -35,10 +35,11 @@ Use the `Endpoints` namespace to access the endpoints.
 | `service_types/1` | `Endpoints.serviceTypes[id: "1"]` | The `ServiceType` with id 1 |
 
 ### Usage
+```swift
     import PlanningCenterSwift
     ...
     Endpoints.serviceTypes[id: "1"].plans.filter(.future)
-
+```
 ## Contributing
 ...
 
