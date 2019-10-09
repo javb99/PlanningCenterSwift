@@ -18,9 +18,7 @@ This project was developed alongside an iOS App, [Services Scheduler](), so it h
 ### Swift Package Manager Dependency
     .package(url: "https://github.com/javb99/PlanningCenterSwift.git", .branch("master"))
 
-### Xcode
-
-### Command Line
+### Source Code via Command Line
     git clone git@github.com:javb99/PlanningCenterSwift.git
     open ./PlanningCenterSwift/Package.swift
     
@@ -30,11 +28,19 @@ This project is only dependent on [SwiftJSONAPI](https://github.com/javb99/Swift
 ## Examples
 Use the `Endpoints` namespace to access the endpoints.
 
+### Endpoint to path conversions
 | Path | Equivalent Key Path | Description |
 | ----- | ----------------------- | -------------- |
 | `service_types` | `Endpoints.serviceTypes` | The first page of `ServiceType`s |
 | `service_types/1` | `Endpoints.serviceTypes[id: "1"]` | The `ServiceType` with id 1 |
 
+### Usage
+    import PlanningCenterSwift
+    ...
+    Endpoints.serviceTypes[id: "1"].plans.filter(.future)
+
+## Contributing
+...
 
 ## External Links
 - [Planning Center Developer Documentation](https://developer.planning.center)
