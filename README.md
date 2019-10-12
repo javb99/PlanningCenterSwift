@@ -25,7 +25,17 @@ This project was developed alongside an iOS App, [Services Scheduler](), so it h
 ## Dependencies
 This project is only dependent on [SwiftJSONAPI](https://github.com/javb99/SwiftJSONAPI). It is just the generic part of the model code that could potentially be resused for other APIs that conform to the [JSON:API 1.0 Specification](https://jsonapi.org). Both packages are maintained side by side.
 
-## Examples
+## Usage
+```swift
+import PlanningCenterSwift
+```
+
+### Create a `URLSessionService` to execute API requests.
+```swift
+let credentials = BasicAuthenticationProvider(id: "<<Service ID>>", password: "<<Service Secret>>")
+let network = URLSessionService(authenticationProvider: credentials)
+```
+
 Use the `Endpoints` namespace to access the endpoints.
 
 ### Endpoint to path conversions
@@ -35,18 +45,7 @@ Use the `Endpoints` namespace to access the endpoints.
 | `service_types/1` | `Endpoints.serviceTypes[id: "1"]` | The `ServiceType` with id 1 |
 |`service_types/1` | `Endpoints.serviceTypes[id: "1"].plans.filter(.future)` | The future plans for the service type with id 1 |
 
-### Usage
-
-```swift
-import PlanningCenterSwift
-```
-
-Create a `URLSessionService` to execute API requests.
-```swift
-let network = URLSessionService(authenticationProvider: BasicAuthenticationProvider(id: "<<Service ID>>", password: "<<Service Secret>>"))
-```
-
-Service Type names could be printed as follows:
+### `ServiceType` names
 ```swift
 network.fetch(Endpoints.serviceTypes) { result in
     switch result {
