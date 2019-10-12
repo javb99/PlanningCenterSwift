@@ -8,8 +8,13 @@ Planning Center Swift is a library to make interaction with Planning Center's [d
 - Discoverability Through Code Completion
 - Synthesized Support of `Swift.Codable`
 
-## Supported Platforms
-This project was developed alongside an iOS App, [Services Scheduler](), so it has been tested most throughly on that platform. The goals for the project do include being usable on Linux for server-side development.
+## Supported Platforms and Versions
+
+- iOS is the primary supported platform.
+- macOS (untested)
+- linux (untested)
+- Planning Center Services API V2
+- JSON:API Specification 1.0
 
 ## Installation
 
