@@ -44,7 +44,7 @@ Use the `Endpoints` namespace to access the endpoints.
 | `service_types` | `Endpoints.serviceTypes` | The first page of `ServiceType`s |
 | `service_types/1` | `Endpoints.serviceTypes[id: "1"]` | The `ServiceType` with id 1 |
 
-### `ServiceType` names
+### ServiceType names
 ```swift
 network.fetch(Endpoints.serviceTypes) { result in
     switch result {
@@ -55,7 +55,7 @@ network.fetch(Endpoints.serviceTypes) { result in
     }
 }
 ```
-### Title of the next `Plan`
+### Title of the next Plan
 ```swift
 let futurePlans = Endpoints.serviceTypes[id: "1"].plans.filter(.future)
 network.fetch(futurePlans) { result in
