@@ -43,7 +43,6 @@ Use the `Endpoints` namespace to access the endpoints.
 | ----- | ----------------------- | -------------- |
 | `service_types` | `Endpoints.serviceTypes` | The first page of `ServiceType`s |
 | `service_types/1` | `Endpoints.serviceTypes[id: "1"]` | The `ServiceType` with id 1 |
-|`service_types/1` | `Endpoints.serviceTypes[id: "1"].plans.filter(.future)` | The future plans for the service type with id 1 |
 
 ### `ServiceType` names
 ```swift
