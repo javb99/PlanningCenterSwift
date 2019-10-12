@@ -56,6 +56,18 @@ network.fetch(Endpoints.serviceTypes) { result in
     }
 }
 ```
+### Title of the next `Plan`
+```swift
+let futurePlans = Endpoints.serviceTypes[id: "1"].plans.filter(.future)
+network.fetch(futurePlans) { result in
+    switch result {
+    case let .success(_, _, document):
+    print("Received team members: \(document.data![0].title ?? "No Title")")
+    case let .failure(error):
+        print("Failed: \(error)")
+    }
+}
+```
 
 ## Contributing
 ...
