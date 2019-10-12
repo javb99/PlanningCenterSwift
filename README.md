@@ -19,8 +19,9 @@ Planning Center Swift is a library to make interaction with Planning Center's [d
 ## Installation
 
 ### Swift Package Manager Dependency
-    .package(url: "https://github.com/javb99/PlanningCenterSwift.git", .branch("master"))
-
+```swift
+.package(url: "https://github.com/javb99/PlanningCenterSwift.git", .branch("master"))
+```
 ### Source Code via Command Line
     git clone git@github.com:javb99/PlanningCenterSwift.git
     open ./PlanningCenterSwift/Package.swift
