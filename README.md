@@ -76,10 +76,10 @@ network.fetch(futurePlans) { result in
 2. Submit a pull request
 
 ### Feature Suggestions
-[] Models and Endpoints for the rest of the Services API.
-[] Add sortable and filterable to applicable endpoints.
-[] Models and Endpoints for the other Planning Center products.
-[] POST and PATCH testing and support.
+- [] Models and Endpoints for the rest of the Services API.
+- [] Add sortable and filterable to applicable endpoints.
+- [] Models and Endpoints for the other Planning Center products.
+- [] POST and PATCH testing and support.
 
 ## External Links
 - [Planning Center Developer Documentation](https://developer.planning.center)
