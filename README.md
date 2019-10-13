@@ -26,7 +26,7 @@ Planning Center Swift is a library to make interaction with Planning Center's [d
     open ./PlanningCenterSwift/Package.swift
     
 ## Dependencies
-This project is only dependent on [SwiftJSONAPI](https://github.com/javb99/SwiftJSONAPI). It is just the generic part of the model code that could potentially be resused for other APIs that conform to the [JSON:API 1.0 Specification](https://jsonapi.org). Both packages are maintained side by side.
+This project is only dependent on [SwiftJSONAPI](https://github.com/javb99/SwiftJSONAPI). Both packages are maintained side by side.
 
 ## Usage
 ```swift
