@@ -72,13 +72,19 @@ network.fetch(futurePlans) { result in
 ```
 
 ## Contributing
-...
+1. Implement a feature
+2. Submit a pull request
+
+### Feature Suggestions:
+- Models and Endpoints for the rest of the Services API.
+- Add sortable and filterable to applicable endpoints.
+- Models and Endpoints for the other Planning Center products.
+- POST and PATCH testing and support.
 
 ## External Links
 - [Planning Center Developer Documentation](https://developer.planning.center)
 - [JSON:API 1.0 Specification](https://jsonapi.org)
 - [JSON:API Swift (The basis of this framework)](https://github.com/javb99/SwiftJSONAPI)
-
 
 ## Copyright
 Joseph Van Boxtel, 2019
