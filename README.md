@@ -39,9 +39,10 @@ let credentials = BasicAuthenticationProvider(id: "<<Service ID>>", password: "<
 let network = URLSessionService(authenticationProvider: credentials)
 ```
 
+### Endpoint to path conversions
+
 Use the `Endpoints` namespace to access the endpoints.
 
-### Endpoint to path conversions
 | Path | Equivalent Key Path | Description |
 | ----- | ----------------------- | -------------- |
 | `service_types` | `Endpoints.serviceTypes` | The first page of `ServiceType`s |
