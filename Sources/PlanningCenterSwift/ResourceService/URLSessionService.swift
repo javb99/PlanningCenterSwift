@@ -60,3 +60,22 @@ public class URLSessionService {
         task.resume()
     }
 }
+
+extension URLSessionService {
+    
+    convenience init(authenticationProvider: BasicAuthenticationProvider) {
+        let baseURL = URL(string: "https://api.planningcenteronline.com/services/v2/")!
+        
+        self.init(
+            requestBuilder: JSONRequestBuilder(
+                baseURL: baseURL,
+                authenticationProvider: authenticationProvider,
+                encoder: JSONEncoder.pco
+            ),
+            responseHandler: JSONResponseHandler(
+                decoder: JSONDecoder.pco
+            ),
+            session: .shared
+        )
+    }
+}
