@@ -1,3 +1,91 @@
 # PlanningCenterSwift
+Planning Center Swift is a library to make interaction with Planning Center's [developer API](https://developer.planning.center/docs/#/introduction) easy. It supports Xcode code completion by using generics and protocols to offer strong static typing of the endpoints and responses by Planning Center's API.
 
-A description of this package.
+![Code completion is supported for endpoint completion](Documentation/endpointCodeCompletion.png)
+
+## Goals
+- Discoverability Through Code Completion
+- Synthesized Support of `Swift.Codable`
+
+## Supported Platforms and Versions
+
+- iOS is the primary supported platform.
+- macOS (untested)
+- linux (untested)
+- Planning Center Services API V2
+- JSON:API Specification 1.0
+
+## Installation
+
+### Swift Package Manager Dependency
+```swift
+.package(url: "https://github.com/javb99/PlanningCenterSwift.git", .branch("master"))
+```
+### Source Code via Command Line
+    git clone git@github.com:javb99/PlanningCenterSwift.git
+    open ./PlanningCenterSwift/Package.swift
+    
+## Dependencies
+This project is only dependent on [SwiftJSONAPI](https://github.com/javb99/SwiftJSONAPI). Both packages are maintained side by side.
+
+## Usage
+```swift
+import PlanningCenterSwift
+```
+
+### Create a `URLSessionService` to execute API requests.
+```swift
+let credentials = BasicAuthenticationProvider(id: "<<Service ID>>", password: "<<Service Secret>>")
+let network = URLSessionService(authenticationProvider: credentials)
+```
+
+### Endpoint to path conversions
+
+Use the `Endpoints` namespace to access the endpoints.
+
+| Path | Equivalent Key Path | Description |
+| ----- | ----------------------- | -------------- |
+| `service_types` | `Endpoints.serviceTypes` | The first page of `ServiceType`s |
+| `service_types/1` | `Endpoints.serviceTypes[id: "1"]` | The `ServiceType` with id 1 |
+
+### ServiceType names
+```swift
+network.fetch(Endpoints.serviceTypes) { result in
+    switch result {
+    case let .success(_, _, document):
+        print("Received service type names: \(document.data!.map{$0.name})")
+    case let .failure(error):
+        print("Failed: \(error)")
+    }
+}
+```
+### Title of the next Plan
+```swift
+let futurePlans = Endpoints.serviceTypes[id: "1"].plans.filter(.future)
+network.fetch(futurePlans) { result in
+    switch result {
+    case let .success(_, _, document):
+    print("Received team members: \(document.data![0].title ?? "No Title")")
+    case let .failure(error):
+        print("Failed: \(error)")
+    }
+}
+```
+
+## Contributing
+1. Implement a feature
+2. Submit a pull request
+
+### Feature Suggestions
+- [ ] Models and Endpoints for the rest of the Services API.
+- [ ] Add sortable and filterable to applicable endpoints.
+- [ ] Models and Endpoints for the other Planning Center products.
+- [ ] POST and PATCH testing and support.
+
+## External Links
+- [Planning Center Developer Documentation](https://developer.planning.center)
+- [JSON:API 1.0 Specification](https://jsonapi.org)
+- [JSON:API Swift (The basis of this framework)](https://github.com/javb99/SwiftJSONAPI)
+
+## Copyright
+Joseph Van Boxtel, 2019
