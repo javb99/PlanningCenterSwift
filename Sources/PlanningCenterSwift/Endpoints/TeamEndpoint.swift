@@ -13,7 +13,7 @@ import JSONAPISpec
 extension Endpoints.Team {
     public var withServiceType: some Endpoint {
         // Only actually one.
-        self.include(listOf: Models.ServiceType.self)
+        self.include(Models.ServiceType.self)
     }
 }
 
