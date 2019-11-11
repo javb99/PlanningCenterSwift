@@ -42,7 +42,7 @@ extension Models.PersonTeamPositionAssignment: ResourceProtocol {
         
         /// When schedule_preference is set to "Choose Weeks" then this indicates which weeks are preferred (checked).
         /// e.g. '1', '3', '5' to prefer odd numbered weeks.
-        public var preferredWeeks: [Int]
+        public var preferredWeeks: [String]
     }
 
     public struct Relationships: Codable {
