@@ -15,7 +15,9 @@ extension Models {
     public struct Team {}
 }
 
-extension Models.Team: ResourceProtocol {
+extension Models.Team: ResourceProtocol, SingularNameProviding {
+    
+    public static let singularResourceName: String = "team"
 
     fileprivate enum ScheduleTo : String, Codable {
         case plan
