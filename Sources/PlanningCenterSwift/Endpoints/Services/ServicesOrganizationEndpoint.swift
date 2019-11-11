@@ -16,6 +16,8 @@ extension Endpoints {
         
         public typealias ResourceType = Models.Organization
         
+        public var method: HTTPMethod = .get
+        
         public var path: Path = ["services", "v2"]
     }
 }
