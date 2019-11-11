@@ -27,6 +27,7 @@ extension Models.PersonTeamPositionAssignment: ResourceProtocol {
 
         public var schedulePreference: SchedulePreference
         public enum SchedulePreference: String, Codable {
+            case asOftenAsNeeded = "As often as needed"
             case everyWeek = "Every week"
             case everyOtherWeek = "Every other week"
             case everyThirdWeek = "Every 3rd week"
