@@ -1,7 +1,4 @@
 //
-//  File.swift
-//  
-//
 //  Created by Joseph Van Boxtel on 11/10/19.
 //
 
@@ -9,9 +6,9 @@ import Foundation
 import JSONAPISpec
 
 extension Endpoints {
-    public static var people = PeopleEndpoint()
+    public static var services = ServicesOrganizationEndpoint()
 
-    public struct PeopleEndpoint: Endpoint {
+    public struct ServicesOrganizationEndpoint: Endpoint {
         
         public typealias RequestBody = Empty
         
@@ -19,6 +16,6 @@ extension Endpoints {
         
         public typealias ResourceType = Models.Organization
         
-        public var path: Path = ["people", "v2"]
+        public var path: Path = ["services", "v2"]
     }
 }
