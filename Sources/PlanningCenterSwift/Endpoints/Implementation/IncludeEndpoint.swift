@@ -12,9 +12,13 @@ public protocol Includable: QueryParamProviding {
     associatedtype IncludeType: Codable
 }
 
-public struct ResourceInclude<ResourceType: ResourceProtocol>: Includable {
+public protocol SingularNameProviding {
+    static var singularResourceName: String { get }
+}
+
+public struct ResourceInclude<ResourceType: ResourceProtocol & SingularNameProviding>: Includable {
     public typealias IncludeType = [Resource<ResourceType>]
-    public var queryParams: [URLQueryItem] = [.init(name: "include", value: ResourceType.resourceType)]
+    public var queryParams: [URLQueryItem] = [.init(name: "include", value: ResourceType.singularResourceName)]
 }
 
 public protocol PluralNameProviding {

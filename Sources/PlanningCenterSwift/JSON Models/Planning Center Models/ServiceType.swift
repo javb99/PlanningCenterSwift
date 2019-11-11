@@ -13,7 +13,9 @@ extension Models {
     public struct ServiceType {}
 }
 
-extension Models.ServiceType: ResourceProtocol {
+extension Models.ServiceType: ResourceProtocol, SingularNameProviding {
+    
+    public static let singularResourceName: String = "service_type"
     
     public struct Attributes: Codable {
         
