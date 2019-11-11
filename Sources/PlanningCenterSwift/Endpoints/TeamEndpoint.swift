@@ -11,7 +11,10 @@ import JSONAPISpec
 // MARK: - Team Specific -
 
 extension Endpoints.Team {
-    
+    public var withServiceType: some Endpoint {
+        // Only actually one.
+        self.include(listOf: Models.ServiceType.self)
+    }
 }
 
 // MARK: - Boilerplate -
