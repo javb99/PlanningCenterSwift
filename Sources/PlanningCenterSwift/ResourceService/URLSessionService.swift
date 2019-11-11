@@ -8,7 +8,7 @@
 import Foundation
 import JSONAPISpec
 
-public class URLSessionService {
+public class URLSessionService: PCOService {
     
     public let session: URLSession
     
@@ -21,8 +21,6 @@ public class URLSessionService {
         self.session = session
         self.responseHandler = responseHandler
     }
-    
-    public typealias Completion<Endpt: Endpoint> = (Result<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>) -> ()
     
     
     // MARK: Interface
