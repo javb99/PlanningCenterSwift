@@ -9,17 +9,17 @@ import JSONAPISpec
 
 extension Endpoints.ServiceType {
     
-    public var personTeamPositionAssignments: CreatableListEndpoint<Endpoints.PlanPerson> { .init(path: path.appending("person_team_position_assignments")) }
+    public var personTeamPositionAssignments: CreatableListEndpoint<Endpoints.PersonTeamPositionAssignment> { .init(path: path.appending("person_team_position_assignments")) }
 }
 
 extension Endpoints.Team {
     
-    public var personTeamPositionAssignments: CreatableListEndpoint<Endpoints.PlanPerson> { .init(path: path.appending("person_team_position_assignments")) }
+    public var personTeamPositionAssignments: CreatableListEndpoint<Endpoints.PersonTeamPositionAssignment> { .init(path: path.appending("person_team_position_assignments")) }
 }
 
 extension Endpoints.Person {
 
-    public var personTeamPositionAssignments: CreatableListEndpoint<Endpoints.PlanPerson> { .init(path: path.appending("person_team_position_assignments")) }
+    public var personTeamPositionAssignments: CreatableListEndpoint<Endpoints.PersonTeamPositionAssignment> { .init(path: path.appending("person_team_position_assignments")) }
 }
 
 //extension Endpoints.TeamPosition {
