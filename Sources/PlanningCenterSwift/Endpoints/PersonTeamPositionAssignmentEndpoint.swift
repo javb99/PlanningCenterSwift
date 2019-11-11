@@ -17,10 +17,10 @@ extension Endpoints.Team {
     public var personTeamPositionAssignments: CreatableListEndpoint<Endpoints.PlanPerson> { .init(path: path.appending("person_team_position_assignments")) }
 }
 
-//extension Endpoints.Person {
-//
-//    public var personTeamPositionAssignments: CreatableListEndpoint<Endpoints.PlanPerson> { .init(path: path.appending("person_team_position_assignments")) }
-//}
+extension Endpoints.Person {
+
+    public var personTeamPositionAssignments: CreatableListEndpoint<Endpoints.PlanPerson> { .init(path: path.appending("person_team_position_assignments")) }
+}
 
 //extension Endpoints.TeamPosition {
 //
