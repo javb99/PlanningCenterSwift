@@ -13,7 +13,7 @@ public protocol Includable: QueryParamProviding {
 }
 
 public struct ResourceInclude<ResourceType: ResourceProtocol>: Includable {
-    public typealias IncludeType = Resource<ResourceType>
+    public typealias IncludeType = [Resource<ResourceType>]
     public var queryParams: [URLQueryItem] = [.init(name: "include", value: ResourceType.resourceType)]
 }
 
