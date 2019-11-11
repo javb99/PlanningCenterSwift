@@ -11,7 +11,7 @@ import JSONAPISpec
 // MARK: - Team Specific -
 
 extension Endpoints.Team {
-    public var withServiceType: some Endpoint {
+    public var withServiceType: AnyEndpoint<Empty, Document<Resource<Models.Team>, [Resource<Models.ServiceType>], Empty, Empty, Empty, Empty>> {
         // Only actually one.
         self.include(Models.ServiceType.self)
     }
