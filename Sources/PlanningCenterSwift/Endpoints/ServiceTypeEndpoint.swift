@@ -51,9 +51,12 @@ extension Endpoints.ServiceType.PlanFilter: QueryParamProviding {
 
 // MARK: - Boilerplate -
 
-extension Endpoints {
+extension Endpoints.ServicesOrganizationEndpoint {
+    
+    public var serviceTypes: CRUDEndpoint<Endpoints.ServiceType> { .init(path: path.appending("service_types")) }
+}
 
-    public static var serviceTypes = CRUDEndpoint<ServiceType>(path: ["service_types"])
+extension Endpoints {
 
     public struct ServiceType: SingleResourceEndpoint {
         

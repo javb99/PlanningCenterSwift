@@ -16,10 +16,13 @@ extension Endpoints.Plan {
 
 // MARK: - Boilerplate -
 
+extension Endpoints.ServicesOrganizationEndpoint {
+    
+    public var plans: CRUDEndpoint<Endpoints.Plan> { .init(path: path.appending("plans")) }
+}
+
 extension Endpoints {
     
-    public static var plans = CRUDEndpoint<Plan>(path: ["plans"])
-
     public struct Plan: SingleResourceEndpoint {
         
         public typealias RequestBody = Empty

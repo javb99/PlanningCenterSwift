@@ -19,9 +19,12 @@ extension Endpoints.Folder {
 
 // MARK: - Boilerplate -
 
-extension Endpoints {
+extension Endpoints.ServicesOrganizationEndpoint {
     
-    public static var folders = CRUDEndpoint<Folder>(path: ["folders"])
+    public var folders: CRUDEndpoint<Endpoints.Folder> { .init(path: path.appending("folders")) }
+}
+
+extension Endpoints {
 
     public struct Folder: SingleResourceEndpoint {
         

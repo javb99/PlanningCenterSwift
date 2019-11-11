@@ -8,10 +8,13 @@
 import Foundation
 import JSONAPISpec
 
+extension Endpoints.ServicesOrganizationEndpoint {
+    
+    public var planPeople: ListEndpoint<Updatable<Deletable<Endpoints.PlanPerson>>> { .init(path: path.appending("plan_people")) }
+}
+
 extension Endpoints {
     
-    public static var planPeople = ListEndpoint<Updatable<Deletable<PlanPerson>>>(path: ["plan_people"])
-
     public struct PlanPerson: SingleResourceEndpoint {
         
         public typealias RequestBody = Empty

@@ -16,10 +16,13 @@ extension Endpoints.Team {
 
 // MARK: - Boilerplate -
 
+extension Endpoints.ServicesOrganizationEndpoint {
+    
+    public var teams: CRUDEndpoint<Endpoints.Team> { .init(path: path.appending("teams")) }
+}
+
 extension Endpoints {
     
-    public static var teams = CRUDEndpoint<Team>(path: ["teams"])
-
     public struct Team: SingleResourceEndpoint {
         
         public typealias RequestBody = Empty
