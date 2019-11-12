@@ -49,11 +49,11 @@ extension Endpoints.ServiceType.PlanFilter: QueryParamProviding {
     }
 }
 
-// MARK: - Boilerplate -
-
 extension Endpoints.ServicesOrganizationEndpoint {
     
-    public var serviceTypes: CRUDEndpoint<Endpoints.ServiceType> { .init(path: path.appending("service_types")) }
+    public var serviceTypes: Filtered<CRUDEndpoint<Endpoints.ServiceType>, Endpoints.Folder.ParentFilter> { Filtered(.init(path: path.appending("service_types"))) }
+    
+    public var rootServiceTypes: AnyEndpoint<Empty, ResourceCollectionDocument<Models.ServiceType>> { serviceTypes.filter(.root) }
 }
 
 extension Endpoints {
