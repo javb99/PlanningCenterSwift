@@ -1,76 +1,13 @@
 //
-//  Created by Joseph Van Boxtel on 11/12/19.
+//  Created by Joseph Van Boxtel on 11/18/19.
 //
-
-import Foundation
 
 import Foundation
 import XCTest
-import JSONAPISpec
-@testable import PlanningCenterSwift
 import Combine
+@testable import PlanningCenterSwift
 
-/// Operators the respect Demand d
-/// d     .map()
-/// n*d   .collect(n)
-/// d     .append(Sequence)
-/// d     .append(Publisher)
-/// d     .scan()
-/// d     .assertNoFailure()
-/// d     .removeDuplicates()
-/// d     .replaceError()
-/// d     .replaceEmpty()
-/// d     .filter()
-/// k  *  .flatMap(maxPublishers: k, {})
-/// 1     .dropFirst()
-/// min(n,d) .dropFirst(n)
-/// n  *  .prefix(k)
-/// n     .prefix(while:)
-/// n  *  .output(at: k)
-/// n  *  .output(in: )
-/// n     .drop(untilOutputFrom: Publisher) demands 1 from paramer pub
-/// n     .prefix(untilOutputFrom: Publisher) demands 1 from paramer pub
-/// n     .zip() both demand n
-/// 1     .merge() both demand 1 at a time. result is interleaved
-/// n     .combineLatest() both demand n
-/// n     .catch({})
-/// n     .print()
-///
-///
-/// Operators that don't respect Demand
-/// unlimited .first()
-/// unlimited .first(where:{})
-/// unlimited .last()
-/// unlimited .last(where:{})
-/// unlimited .collect() can logically only reply to a demand of 1
-/// unlimited .reduce(:,:)
-/// unlimited .ignoreOutput()
-/// unlimited .flatMap({})
-/// unlimited .count()  by definition
-/// unlimited .allSatisfy()
-/// unlimited .contains()
-/// ....      .multicast()
-/// unlimited .switchToLatests()
-///
-
-class ListEndpointPublisherTests: XCTestCase {
-
-//    func test_() {
-//        let sut = ListEndpointPublisher(endpoint: Endpoints.services.planPeople, network: MockNetwork())
-//
-////        let prefixed = sut.first()
-////        var receivedCount = 0
-////        let exp = expectation(description: "completes")
-//
-////        let sub = AnySubscriber<[Int], NetworkError>(receiveSubscription: { $0.request(.max(10)) }, receiveValue: { _ in return .max(1) }, receiveCompletion: {_ in })
-//
-//        let p = sut.map{_ in sut}.receive(subscriber: SubscriberSpy())
-////        let s = prefixed.sink(receiveCompletion: {_ in
-////            exp.fulfill()
-////        }, receiveValue: { _ in receivedCount += 1 })
-////        wait(for: [exp], timeout: 2)
-////        XCTAssertEqual(receivedCount, 5)
-//    }
+class PagingPublisherTests: XCTestCase {
     
     func test_receivesNoRequest_requestsNoPages() {
         let spy = SubscriberSpy<Int, Never>()

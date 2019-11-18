@@ -7,6 +7,7 @@
 
 import Foundation
 import JSONAPISpec
+import Combine
 
 public class URLSessionService: PCOService {
     
@@ -27,28 +28,28 @@ public class URLSessionService: PCOService {
     
     
     /// Execute a request for an endpoint that doesn't require a request body.
-    public func fetch<Endpt: Endpoint>(_ endpoint: Endpt, completion: @escaping Completion<Endpt>) where Endpt.RequestBody == Empty {
+    public func fetch<Endpt: Endpoint>(_ endpoint: Endpt, completion: @escaping Completion<Endpt>) -> AnyCancellable where Endpt.RequestBody == JSONAPISpec.Empty {
         
         guard let request = requestBuilder.buildRequest(for: endpoint) else {
             fatalError("Failed to build request.")
         }
-        send(request, for: endpoint, completion: completion)
+        return send(request, for: endpoint, completion: completion)
     }
     
     /// Execute a request for an endpoint that requires a request body.
-    public func send<Endpt: Endpoint>(body: Endpt.RequestBody, to endpoint: Endpt, completion: @escaping Completion<Endpt>) {
+    public func send<Endpt: Endpoint>(body: Endpt.RequestBody, to endpoint: Endpt, completion: @escaping Completion<Endpt>) -> AnyCancellable {
         
         guard let request = requestBuilder.buildRequest(for: endpoint, body: body) else {
             fatalError("Failed to build request.")
         }
-        send(request, for: endpoint, completion: completion)
+        return send(request, for: endpoint, completion: completion)
     }
     
     
     // MARK: Implementation
     
     
-    private func send<Endpt>(_ request: URLRequest, for endpoint: Endpt, completion: @escaping Completion<Endpt>) where Endpt: Endpoint {
+    private func send<Endpt>(_ request: URLRequest, for endpoint: Endpt, completion: @escaping Completion<Endpt>) -> AnyCancellable where Endpt: Endpoint {
         
         let task = session.dataTask(with: request) { (data, response, error) in
             
@@ -56,6 +57,7 @@ public class URLSessionService: PCOService {
             completion(result)
         }
         task.resume()
+        return AnyCancellable({task.cancel()})
     }
 }
 
