@@ -8,15 +8,9 @@ import Combine
 
 public typealias Completion<Endpt: Endpoint> = (Result<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>) -> ()
 
-public protocol PCOService {
-    /// Execute a request for an endpoint that doesn't require a request body.
-    @discardableResult
-    func fetch<Endpt: Endpoint>(
-        _ endpoint: Endpt,
-        completion: @escaping Completion<Endpt>
-    ) -> AnyCancellable
-        where Endpt.RequestBody == JSONAPISpec.Empty
-    
+public typealias PCOService = PCOUploadService & PCODownloadService
+
+public protocol PCOUploadService {
     /// Execute a request for an endpoint that requires a request body.
     @discardableResult
     func send<Endpt: Endpoint>(
@@ -24,4 +18,14 @@ public protocol PCOService {
         to endpoint: Endpt,
         completion: @escaping Completion<Endpt>
     ) -> AnyCancellable
+}
+
+public protocol PCODownloadService {
+    /// Execute a request for an endpoint that doesn't require a request body.
+    @discardableResult
+    func fetch<Endpt: Endpoint>(
+        _ endpoint: Endpt,
+        completion: @escaping Completion<Endpt>
+    ) -> AnyCancellable
+        where Endpt.RequestBody == JSONAPISpec.Empty
 }
