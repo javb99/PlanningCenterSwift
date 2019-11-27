@@ -31,6 +31,7 @@ extension Publishers.Orderer {
         
         let combineIdentifier = CombineIdentifier()
         
+        var pendingFromUpstream = Subscribers.Demand.none
         var outstandingDemand = Subscribers.Demand.none
         var buffer = [Int:Element]()
         var nextEmittedIndex: Int = 0
@@ -42,6 +43,7 @@ extension Publishers.Orderer {
         func emitBuffered() -> Subscribers.Demand {
             var newDemand = Subscribers.Demand.none
             while outstandingDemand > .none, let next = buffer[nextEmittedIndex] {
+                buffer[nextEmittedIndex] = nil
                 newDemand += subscriber.receive(next)
                 outstandingDemand -= 1
                 nextEmittedIndex += 1
@@ -57,8 +59,12 @@ extension Publishers.Orderer {
             
             outstandingDemand += emitBuffered()
             
-            if outstandingDemand > .none, case let .subscribed(upstream) = upstreamStatus {
-                upstream.request(outstandingDemand)
+            let outOfOrderSoNeedMore = buffer.count == outstandingDemand.max && outstandingDemand > .none
+            let shouldWaitForPending = outstandingDemand > pendingFromUpstream + .max(buffer.count)
+            if shouldWaitForPending || outOfOrderSoNeedMore, case let .subscribed(upstream) = upstreamStatus {
+                let moreNeeded = outstandingDemand-pendingFromUpstream
+                pendingFromUpstream += moreNeeded
+                upstream.request(moreNeeded)
             }
         }
         
@@ -75,6 +81,7 @@ extension Publishers.Orderer {
         }
         
         func receive(_ input: (Int, Element)) -> Subscribers.Demand {
+            pendingFromUpstream -= 1
             buffer[input.0] = input.1
             let newDemand = emitBuffered()
             requestFromUpstream(newDemand)

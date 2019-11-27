@@ -56,6 +56,21 @@ class OrdererPublisherTests: XCTestCase {
         XCTAssertTrue(didCancelUpstream)
     }
     
+    func test_requestsProperNumberFromUpstream() {
+        var receivedUpstreamDemand = Subscribers.Demand.none
+        let upstream = Publishers.Sequence<[(Int, String)], Never>(sequence:[(0, "a")])
+            .handleEvents(receiveRequest: { receivedUpstreamDemand += $0 })
+        
+        let sut = Publishers.Orderer(upstream: upstream)
+        
+        let spy = SubscriberSpy<String, Never>()
+        sut.receive(subscriber: spy)
+        
+        spy.request(.max(5))
+        
+        XCTAssertEqual(receivedUpstreamDemand, .max(5))
+    }
+    
     // MARK: Helpers
     
     func makeSUT<Element>(upstream upstreamData: [(Int,Element)]) -> (Publishers.Orderer<Element, Publishers.Sequence<[(Int, Element)], Never>>, SubscriberSpy<Element, Never>) {
