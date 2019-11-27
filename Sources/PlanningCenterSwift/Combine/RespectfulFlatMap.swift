@@ -27,12 +27,10 @@ extension Publisher {
     /// - Returns: A publisher that transforms elements from an upstream publisher into
     ///   a publisher of that element’s type.
     public func respectfulFlatMap<Result, Child: Publisher>(
-        maxPublishers: Subscribers.Demand = .unlimited,
         _ transform: @escaping (Output) -> Child
     ) -> Publishers.RespectfulFlatMap<Child, Self>
         where Result == Child.Output, Failure == Child.Failure {
             return .init(upstream: self,
-                         maxPublishers: maxPublishers,
                          transform: transform)
     }
 }
@@ -47,24 +45,20 @@ extension Publishers {
 
         public let upstream: Upstream
 
-        public let maxPublishers: Subscribers.Demand
-
         public let transform: (Upstream.Output) -> Child
 
-        public init(upstream: Upstream, maxPublishers: Subscribers.Demand,
+        public init(upstream: Upstream,
                     transform: @escaping (Upstream.Output) -> Child) {
             self.upstream = upstream
-            self.maxPublishers = maxPublishers
             self.transform = transform
         }
         public func receive<Downstream: Subscriber>(subscriber: Downstream)
             where Child.Output == Downstream.Input, Upstream.Failure == Downstream.Failure
         {
             let inner = Inner(downstream: subscriber,
-                              maxPublishers: maxPublishers,
                               map: transform)
-            subscriber.receive(subscription: inner)
             upstream.subscribe(inner)
+            subscriber.receive(subscription: inner)
         }
     }
 }
@@ -109,22 +103,19 @@ extension Publishers.RespectfulFlatMap {
         /// This variable is set to `true` whenever we call `downstream.receive(_:)`,
         /// and then set back to `false`.
         private var downstreamRecursive = false
+        
+        private var isWaitingForChild = false
+        private var pendingFromChild = Subscribers.Demand.none
 
         private var innerRecursive = false
-        private var subscriptions = [SubscriptionIndex : Subscription]()
-        private var nextInnerIndex: SubscriptionIndex = 0
-        private var pendingSubscriptions = 0
-        private var buffer = [(SubscriptionIndex, Child.Output)]()
-        private let maxPublishers: Subscribers.Demand
+        private var childSubscription: Subscription?
         private let map: (Input) -> Child
         private var cancelledOrCompleted = false
         private var outerFinished = false
 
         init(downstream: Downstream,
-             maxPublishers: Subscribers.Demand,
              map: @escaping (Upstream.Output) -> Child) {
             self.downstream = downstream
-            self.maxPublishers = maxPublishers
             self.map = map
         }
 
@@ -136,6 +127,7 @@ extension Publishers.RespectfulFlatMap {
 
         // MARK: - Subscriber
 
+        /// Upstream(outer) subscription
         fileprivate func receive(subscription: Subscription) {
             lock.lock()
             guard outerSubscription == nil, !cancelledOrCompleted else {
@@ -145,9 +137,9 @@ extension Publishers.RespectfulFlatMap {
             }
             outerSubscription = subscription
             lock.unlock()
-            subscription.request(maxPublishers)
         }
 
+        /// Receive upstream input to convert to publisher
         fileprivate func receive(_ input: Upstream.Output) -> Subscribers.Demand {
             lock.lock()
             let cancelledOrCompleted = self.cancelledOrCompleted
@@ -155,16 +147,13 @@ extension Publishers.RespectfulFlatMap {
             if cancelledOrCompleted {
                 return .none
             }
+            assert(childSubscription == nil) // Only one child at a time.
             let child = map(input)
-            lock.lock()
-            let innerIndex = nextInnerIndex
-            nextInnerIndex += 1
-            pendingSubscriptions += 1
-            lock.unlock()
-            child.subscribe(Side(index: innerIndex, inner: self))
+            child.receive(subscriber: Side(inner: self))
             return .none
         }
 
+        /// Upstream completed. No more publishers for children.
         fileprivate func receive(completion: Subscribers.Completion<Child.Failure>) {
             outerSubscription = nil
             lock.lock()
@@ -176,10 +165,8 @@ extension Publishers.RespectfulFlatMap {
             case .failure:
                 let wasAlreadyCancelledOrCompleted = cancelledOrCompleted
                 cancelledOrCompleted = true
-                for (_, subscription) in subscriptions {
-                    subscription.cancel()
-                }
-                subscriptions = [:]
+                self.childSubscription?.cancel()
+                self.childSubscription = nil
                 lock.unlock()
                 if wasAlreadyCancelledOrCompleted {
                     return
@@ -191,68 +178,45 @@ extension Publishers.RespectfulFlatMap {
         }
 
         // MARK: - Subscription
+        
+        func emitDownstream(_ value: Child.Output) -> Subscribers.Demand {
+            downstreamLock.lock()
+            downstreamRecursive = true
+            assert(downstreamDemand > 0)
+            downstreamDemand -= 1
+            let additionalDemand = downstream.receive(value)
+            downstreamRecursive = false
+            downstreamLock.unlock()
+            return additionalDemand
+        }
+        
+        // Downstream subscribes
+        
+        // Downstream demands n
+        // Demand 1 pub(child) from upstream
+        
+        // Recieve 1 pub(child) from upstream
+        // Demand n from child
+        
+        // Receive from child
+        // Emit to Downstream
 
+        /// Request coming from downstream.
         fileprivate func request(_ demand: Subscribers.Demand) {
             assert(demand > 0)
-            if downstreamRecursive {
-                // downstreamRecursive being true means that downstreamLock
-                // is already acquired.
-                downstreamDemand += demand
-                return
-            }
+            
             lock.lock()
-            if cancelledOrCompleted {
-                lock.unlock()
-                return
-            }
-            if demand == .unlimited {
-                downstreamDemand = .unlimited
-                let buffer = self.buffer
-                self.buffer = []
-                let subscriptions = self.subscriptions
-                lock.unlock()
-                downstreamLock.lock()
-                downstreamRecursive = true
-                for (_, childOutput) in buffer {
-                    _ = downstream.receive(childOutput)
-                }
-                downstreamRecursive = false
-                downstreamLock.unlock()
-                for (_, subscription) in subscriptions {
-                    subscription.request(.unlimited)
-                }
-                lock.lock()
+            assert(demand != .unlimited)
+            assert(downstreamDemand != .unlimited)
+            downstreamDemand += demand
+            if let childSubscription = childSubscription {
+                // request from child
+                requestFromChild(demand)
+            } else if isWaitingForChild {
+                // do nothing until child comes.
             } else {
-                downstreamDemand += demand
-                while !buffer.isEmpty && downstreamDemand > 0 {
-                    // FIXME: This has quadratic complexity.
-                    // This is what Combine does.
-                    // Can we improve perfomance by using e. g. Deque instead of Array?
-                    // Or array's cache locality makes this solution more efficient?
-                    // Must benchmark before optimizing!
-                    //
-                    // https://www.cocoawithlove.com/blog/2016/09/22/deque.html
-                    let (index, value) = buffer.removeFirst()
-                    downstreamDemand -= 1
-                    let subscription = subscriptions[index]
-                    lock.unlock()
-                    downstreamLock.lock()
-                    downstreamRecursive = true
-                    let additionalDemand = downstream.receive(value)
-                    downstreamRecursive = false
-                    downstreamLock.unlock()
-                    if additionalDemand != .none {
-                        lock.lock()
-                        downstreamDemand += additionalDemand
-                        lock.unlock()
-                    }
-                    if let subscription = subscription {
-                        innerRecursive = true
-                        subscription.request(.max(1))
-                        innerRecursive = false
-                    }
-                    lock.lock()
-                }
+                // request child
+                requestOneMorePublisher()
             }
             releaseLockThenSendCompletionDownstreamIfNeeded(outerFinished: outerFinished)
         }
@@ -260,15 +224,21 @@ extension Publishers.RespectfulFlatMap {
         fileprivate func cancel() {
             lock.lock()
             cancelledOrCompleted = true
-            let subscriptions = self.subscriptions
-            self.subscriptions = [:]
+            let subscription = self.childSubscription
+            self.childSubscription = nil
             lock.unlock()
-            for (_, subscription) in subscriptions {
-                subscription.cancel()
-            }
+            subscription?.cancel()
             // Combine doesn't acquire the lock here. Weird.
             outerSubscription?.cancel()
             outerSubscription = nil
+        }
+        
+        func requestFromChild(_ demand: Subscribers.Demand) {
+            guard demand > 0 else { return }
+            if let childSubscription = childSubscription {
+                pendingFromChild += demand
+                childSubscription.request(demand)
+            }
         }
 
         // MARK: - Reflection
@@ -283,62 +253,39 @@ extension Publishers.RespectfulFlatMap {
 
         // MARK: - Private
 
-        private func receiveInner(subscription: Subscription,
-                                  _ index: SubscriptionIndex) {
+        /// Receive Child subscription
+        private func receiveInner(subscription: Subscription) {
             lock.lock()
-            pendingSubscriptions -= 1
-            subscriptions[index] = subscription
+            isWaitingForChild = false
+            childSubscription = subscription
 
-            let demand = downstreamDemand == .unlimited
-                ? Subscribers.Demand.unlimited
-                : .max(1)
+            let demand = downstreamDemand
 
             lock.unlock()
-            subscription.request(demand)
+            requestFromChild(demand)
         }
 
-        private func receiveInner(_ input: Child.Output,
-                                  _ index: SubscriptionIndex) -> Subscribers.Demand {
+        /// Receive from child
+        private func receiveInner(_ input: Child.Output) -> Subscribers.Demand {
             lock.lock()
-            if downstreamDemand == .unlimited {
-                lock.unlock()
-                downstreamLock.lock()
-                downstreamRecursive = true
-                _ = downstream.receive(input)
-                downstreamRecursive = false
-                downstreamLock.unlock()
-                return .none
-            }
-            if downstreamDemand == .none || innerRecursive {
-                buffer.append((index, input))
-                lock.unlock()
-                return .none
-            }
-            downstreamDemand -= 1
+            assert(downstreamDemand > 0)
+            assert(pendingFromChild > 0)
+            pendingFromChild -= 1
+            let newDemand = emitDownstream(input)
+            requestFromChild(newDemand)
             lock.unlock()
-            downstreamLock.lock()
-            downstreamRecursive = true
-            let newDemand = downstream.receive(input)
-            downstreamRecursive = false
-            downstreamLock.unlock()
-            if newDemand > 0 {
-                lock.lock()
-                downstreamDemand += newDemand
-                lock.unlock()
-            }
-            return .max(1)
+            return .none
         }
 
-        private func receiveInner(completion: Subscribers.Completion<Child.Failure>,
-                                  _ index: SubscriptionIndex) {
+        private func receiveInner(completion: Subscribers.Completion<Child.Failure>) {
             switch completion {
             case .finished:
                 lock.lock()
-                subscriptions.removeValue(forKey: index)
+                childSubscription = nil
                 let downstreamCompleted = releaseLockThenSendCompletionDownstreamIfNeeded(
                     outerFinished: outerFinished
                 )
-                if !downstreamCompleted {
+                if !downstreamCompleted && downstreamDemand > 0 && !isWaitingForChild && childSubscription == nil {
                     requestOneMorePublisher()
                 }
             case .failure:
@@ -348,12 +295,8 @@ extension Publishers.RespectfulFlatMap {
                     return
                 }
                 cancelledOrCompleted = true
-                let subscriptions = self.subscriptions
-                self.subscriptions = [:]
+                self.childSubscription = nil
                 lock.unlock()
-                for (i, subscription) in subscriptions where i != index {
-                    subscription.cancel()
-                }
                 downstreamLock.lock()
                 downstream.receive(completion: completion)
                 downstreamLock.unlock()
@@ -361,11 +304,14 @@ extension Publishers.RespectfulFlatMap {
         }
 
         private func requestOneMorePublisher() {
-            if maxPublishers != .unlimited {
-                outerLock.lock()
-                outerSubscription?.request(.max(1))
-                outerLock.unlock()
-            }
+            lock.lock()
+            isWaitingForChild = true
+            pendingFromChild = .none
+            lock.unlock()
+            outerLock.lock()
+            // Only need one publisher at a time.
+            outerSubscription!.request(.max(1))
+            outerLock.unlock()
         }
 
         /// - Precondition: `lock` is acquired
@@ -376,11 +322,8 @@ extension Publishers.RespectfulFlatMap {
         private func releaseLockThenSendCompletionDownstreamIfNeeded(
             outerFinished: Bool
         ) -> Bool {
-//            #if DEBUG
-//            lock.assertOwner() // Sanity check
-//            #endif
-            if !cancelledOrCompleted && outerFinished && buffer.isEmpty &&
-                subscriptions.count + pendingSubscriptions == 0 {
+            if !cancelledOrCompleted && outerFinished &&
+                (childSubscription == nil) && !isWaitingForChild {
                 cancelledOrCompleted = true
                 lock.unlock()
                 downstreamLock.lock()
@@ -399,25 +342,24 @@ extension Publishers.RespectfulFlatMap {
                              CustomStringConvertible,
                              CustomReflectable,
                              CustomPlaygroundDisplayConvertible {
-            private let index: SubscriptionIndex
+            
             private let inner: Inner
             fileprivate let combineIdentifier = CombineIdentifier()
 
-            fileprivate init(index: SubscriptionIndex, inner: Inner) {
-                self.index = index
+            fileprivate init(inner: Inner) {
                 self.inner = inner
             }
 
             fileprivate func receive(subscription: Subscription) {
-                inner.receiveInner(subscription: subscription, index)
+                inner.receiveInner(subscription: subscription)
             }
 
             fileprivate func receive(_ input: Child.Output) -> Subscribers.Demand {
-                return inner.receiveInner(input, index)
+                return inner.receiveInner(input)
             }
 
             fileprivate func receive(completion: Subscribers.Completion<Child.Failure>) {
-                inner.receiveInner(completion: completion, index)
+                inner.receiveInner(completion: completion)
             }
 
             fileprivate var description: String { return "RespectfulFlatMap" }

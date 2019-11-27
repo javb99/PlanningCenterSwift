@@ -14,25 +14,20 @@ extension PCODownloadService {
         Endpt.ResponseBody == ResourceCollectionDocument<R>,
         Endpt.RequestBody == JSONAPISpec.Empty {
         
-            let pageNumbers = Publishers.Sequence(sequence: FunctionSequence<Int>.positiveAscending).setFailureType(to: NetworkError.self).prefix(10).print()
+            let pageNumbers = Publishers.Sequence(sequence: FunctionSequence<Int>.positiveAscending).setFailureType(to: NetworkError.self).print("Upstream")
             
-            let pageFutures = pageNumbers.respectfulFlatMap(maxPublishers: .max(1)) { pageIndex in
+            let pageFutures = pageNumbers.respectfulFlatMap() { pageIndex in
                 self.future(for: endpt)
-                .map { (_, _, body: ResourceCollectionDocument<R>) -> [Resource<R>] in
+                .map { (_, _, body: ResourceCollectionDocument<R>) -> (Int, [Resource<R>]) in
                     let resources = body.data ?? []
-                    return resources
-                }.map {
-                    (pageIndex, $0)
-                }
+                    return (pageIndex, resources)
+                }.print("Child")
             }
             
             let orderedPages = Publishers.Orderer(upstream: pageFutures)
-            return orderedPages.flatten()
-//            future(for: endpt)
-//                .map { (_, _, body: ResourceCollectionDocument<R>) -> [Resource<R>] in
-//                    let resources = body.data ?? []
-//                    return resources
-//                }.flatten()
+            return PagingPublisher(upstream:orderedPages)
+                .print("Downstream")
+                .eraseToAnyPublisher()
     }
     
     func future<Endpt>(for endpt: Endpt)
@@ -43,13 +38,5 @@ extension PCODownloadService {
         Future<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>() { fulfill in
             self.fetch(endpt, completion: fulfill)
         }
-    }
-}
-
-extension Publisher where Output: Collection {
-    func flatten() -> AnyPublisher<Output.Element, Failure> {
-        self.flatMap {
-            Publishers.Sequence(sequence: $0)
-        }.eraseToAnyPublisher()
     }
 }
