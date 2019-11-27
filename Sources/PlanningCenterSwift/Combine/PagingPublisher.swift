@@ -11,7 +11,7 @@ where Upstream.Output == [Element]{
     typealias Output = Element
     typealias Failure = Upstream.Failure
     
-    let pageSize: Int = 100
+    let pageSize: Int
     let upstream: Upstream
     
     func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
@@ -44,6 +44,7 @@ extension PagingPublisher {
         
         let combineIdentifier = CombineIdentifier()
         
+        var pendingPages = Subscribers.Demand.none
         var outstandingDemand = Subscribers.Demand.none
         var buffer = [Element]()
         
@@ -69,13 +70,16 @@ extension PagingPublisher {
             
             outstandingDemand += emitBuffered()
             
-            if outstandingDemand > .none, case let .subscribed(upstream) = upstreamStatus {
-                upstream.request(self.pageCount(forElementCount: additionalDemand))
+            let totalOutstandingPagesNeeded = self.pageCount(forElementCount: outstandingDemand)
+            if totalOutstandingPagesNeeded > pendingPages, case let .subscribed(upstream) = upstreamStatus {
+                let newPagesNeeded = totalOutstandingPagesNeeded - pendingPages
+                pendingPages += newPagesNeeded
+                upstream.request(newPagesNeeded)
             }
         }
         
         func pageCount(forElementCount elementCount: Subscribers.Demand) -> Subscribers.Demand {
-            if let finiteDemand = outstandingDemand.max {
+            if let finiteDemand = elementCount.max {
                 var (pageCount, overflow) = finiteDemand.quotientAndRemainder(dividingBy: pageSize)
                 if overflow > 0 {
                     pageCount += 1
@@ -99,6 +103,7 @@ extension PagingPublisher {
         }
         
         func receive(_ input: [Element]) -> Subscribers.Demand {
+            pendingPages -= 1
             buffer.append(contentsOf: input)
             let newDemand = emitBuffered()
             requestFromUpstream(newDemand)
