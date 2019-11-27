@@ -21,12 +21,12 @@ extension PCODownloadService {
                 .map { (_, _, body: ResourceCollectionDocument<R>) -> (Int, [Resource<R>]) in
                     let resources = body.data ?? []
                     return (pageIndex, resources)
-                }.print("Child")
-            }
+                    }.print("Child")
+            }.print("Downstream")
             
-            let orderedPages = Publishers.Orderer(upstream: pageFutures)
-            return PagingPublisher(upstream:orderedPages)
-                .print("Downstream")
+            let orderedPages = Publishers.Orderer(upstream: pageFutures).print("Order/Paging")
+            return PagingPublisher(pageSize: pageSize, upstream: orderedPages)
+                .print("EndpointPublisher")
                 .eraseToAnyPublisher()
     }
     

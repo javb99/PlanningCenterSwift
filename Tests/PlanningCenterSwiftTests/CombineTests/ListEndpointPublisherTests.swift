@@ -81,6 +81,12 @@ func makeMockLoader(for endpoint: Filtered<CRUDEndpoint<Endpoints.Folder>, Endpo
     }
 }
 
+extension Resource: CustomStringConvertible where Type == Models.Folder {
+    public var description: String {
+        self.name ?? "Unnamed folder"
+    }
+}
+
 class MockDownloader<E>: PCODownloadService where E : Endpoint, E.RequestBody == JSONAPISpec.Empty {
     internal init(respond: @escaping (E, @escaping Completion<E>) -> Void = { _,_  in }) {
         self.respond = respond
