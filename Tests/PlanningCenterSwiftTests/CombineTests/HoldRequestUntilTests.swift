@@ -93,4 +93,21 @@ class HoldRequestUntilTests: XCTestCase {
         
         XCTAssertEqual(spy.received, [1, 2, 3, 4, 5])
     }
+    
+    func test_requestsSingles_receivesAll() {
+        var didRequest = false
+        let upstream = SequencePublisher(sequence: [1, 2, 3, 4, 5]).handleEvents(receiveRequest: {_ in didRequest = true})
+        let unlock = PassthroughSubject<Void, Never>()
+        let sut = upstream.holdRequests(untilOutputFrom: unlock)
+        let spy = SubscriberSpy<Int, Never>()
+        sut.receive(subscriber: spy)
+        
+        spy.request(.max(2))
+        unlock.send()
+        spy.request(.max(1))
+        spy.request(.max(1))
+        spy.request(.max(1))
+        
+        XCTAssertEqual(spy.received, [1, 2, 3, 4, 5])
+    }
 }

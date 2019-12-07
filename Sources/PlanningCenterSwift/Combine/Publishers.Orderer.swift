@@ -107,5 +107,16 @@ extension Publishers.Orderer {
             }
             upstreamStatus = .terminal
         }
+        
+        // MARK: - Reflection
+
+        fileprivate var description: String { return "Orderer" }
+
+        fileprivate var customMirror: Mirror {
+            return Mirror(self, children: EmptyCollection())
+        }
+
+        fileprivate var playgroundDescription: Any { return description }
+
     }
 }

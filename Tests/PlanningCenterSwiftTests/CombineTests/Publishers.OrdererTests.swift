@@ -32,6 +32,22 @@ class OrdererPublisherTests: XCTestCase {
         XCTAssertEqual(spy.received, ["a", "b"])
     }
     
+    func test_upstreamCompletes_completes() {
+        let (_, spy) = makeSUT(upstream: [(0, "a")])
+        
+        spy.request(.max(2))
+        
+        XCTAssertEqual(spy.received, ["a"])
+    }
+    
+    func test_upstreamCompletesWithoutEmittingAll_completes() {
+        let (_, spy) = makeSUT(upstream: [(1, "b")])
+        
+        spy.request(.max(1))
+        
+        XCTAssertEqual(spy.received, [])
+    }
+    
     func test_notInOrderFirstNotUpstream_returnsNone() {
         let (_, spy) = makeSUT(upstream: [(2, "c")])
         

@@ -42,15 +42,18 @@ struct HoldRequestUntilPublisher<Upstream, Unlock>: Publisher where Upstream: Pu
         
         var isLocked = true {
             didSet {
-                upstreamSub!.request(downstreamDemand)
+                if oldValue == true && isLocked == false, downstreamDemand > .none {
+                    upstreamSub?.request(downstreamDemand)
+                }
             }
         }
         
         // Create subscriber on the unlockPublisher
         func requestUnlock() {
-            unlockSub = unlockPub.prefix(1).sink {[unowned self] _ in
-                self.isLocked = false
-            }
+            unlockSub = unlockPub
+                .prefix(1)
+                .map { _ in false }
+                .assign(to: \.isLocked, on: self)
         }
         
         // MARK: Subscriber

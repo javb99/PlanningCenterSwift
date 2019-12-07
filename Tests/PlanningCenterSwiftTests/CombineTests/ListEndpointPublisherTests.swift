@@ -55,7 +55,7 @@ class ListEndpointPublisherTests: XCTestCase {
     
     func test_demandsTwoPages_getsBoth() {
         let endpt = Endpoints.services.folders
-        let loader = makeMockLoader(for: endpt)
+        let loader = makeTwoPageMockLoader(for: endpt)
         let sut = loader.publisher(for: endpt, pageSize: 4)
         let spy = SubscriberSpy<Resource<Models.Folder>, NetworkError>()
         sut.receive(subscriber: spy)
@@ -65,19 +65,94 @@ class ListEndpointPublisherTests: XCTestCase {
         XCTAssertEqual(loader.requestedCount, 2)
         XCTAssertEqual(spy.received.count, 5)
     }
+    
+    func test_respectfulFlatMap_upstreamCompletes_completes() {
+        var upstreamRequested = Subscribers.Demand.none
+        let upstream = Publishers.Sequence(sequence: [0, 1])
+            .setFailureType(to: Never.self)
+            .handleEvents(receiveRequest: { demand in
+                upstreamRequested += demand
+            })
+        let sut = upstream.print("Upstream").respectfulFlatMap { int in
+            Just(int)
+        }
+        let spy = SubscriberSpy<Int, Never>()
+        sut.receive(subscriber: spy)
+        
+        spy.request(.max(10))
+        
+        XCTAssertNotNil(spy.completion)
+        XCTAssertEqual(spy.received, [0, 1])
+    }
+//    
+//    func test_combineLatest() {
+//        let a = Publishers.Sequence(sequence: [0, 1, 2])
+//            .setFailureType(to: Never.self)
+//        let b = Publishers.Sequence(sequence: ["a"])
+//            .setFailureType(to: Never.self)
+//        let sut = Publishers.CombineLatest(a, b)
+//        
+//        let spy = SubscriberSpy<(Int, String), Never>()
+//        sut.receive(subscriber: spy)
+//        spy.request(.max(4))
+//        
+//        XCTAssertNotNil(spy.completion)
+//        XCTAssertEqual(spy.received.count, 3)
+//        XCTAssert(spy.received[0] == (0, "a"))
+////        XCTAssert(spy.received[1] == (1, "a"))
+////        XCTAssert(spy.received[2] == (2, "a"))
+//    }
+//    
+    func test_demandsFourPages_threeAvailable_getsThreeAndCompletion() {
+        let endpt = Endpoints.services.folders
+        let loader = makeThreePageMockLoader(for: endpt)
+        let sut = loader.publisher(for: endpt, pageSize: 4)
+        let spy = SubscriberSpy<Resource<Models.Folder>, NetworkError>()
+        sut.receive(subscriber: spy)
+
+        spy.request(.max(15))
+
+        XCTAssertNotNil(spy.completion)
+        XCTAssertEqual(loader.requestedCount, 3)
+        XCTAssertEqual(spy.received.count, 12)
+    }
 }
 
 // MARK: Helpers
 
+func ==<A, B>(_ lhs: (A, B), _ rhs: (A, B)) -> Bool where A: Equatable, B: Equatable {
+    return lhs.0 == rhs.0 && lhs.1 == rhs.1
+}
+
 let folderA = Resource<Models.Folder>(identifer: "10", attributes: .init(name: "STUDENTS", createdAt: Date(), updatedAt: Date(), container: nil))
 let stubFolders = [folderA, folderA, folderA, folderA]
 let stubFoldersResponse = ResourceCollectionDocument<Models.Folder>(data: stubFolders)
+
+let stubTwoPageFoldersResponse = ResourceCollectionDocument<Models.Folder>(data: stubFolders, meta: CountMeta(totalCount: stubFolders.count*2, count: stubFolders.count))
+
+let stubThreePageFoldersResponse = ResourceCollectionDocument<Models.Folder>(data: stubFolders, meta: CountMeta(totalCount: stubFolders.count*3, count: stubFolders.count))
 
 func makeMockLoader(for endpoint: Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>) -> MockDownloader<Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>>  {
     
     MockDownloader{ (_, completion) in
         
         completion(.success((HTTPURLResponse(), endpoint, stubFoldersResponse)))
+    }
+}
+
+func makeTwoPageMockLoader(for endpoint: Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>) -> MockDownloader<Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>>  {
+    
+    MockDownloader{ (_, completion) in
+        
+        completion(.success((HTTPURLResponse(), endpoint, stubTwoPageFoldersResponse)))
+    }
+}
+
+func makeThreePageMockLoader(for endpoint: Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>) -> MockDownloader<Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>>  {
+    
+    MockDownloader{ (_, completion) in
+        
+        completion(.success((HTTPURLResponse(), endpoint, stubThreePageFoldersResponse)))
     }
 }
 

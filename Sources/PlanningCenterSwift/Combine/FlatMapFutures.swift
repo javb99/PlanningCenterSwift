@@ -1,5 +1,5 @@
 //
-//  RespectfulFlatMap.swift
+//  FlatMapFutures.swift
 //  PlanningCenterSwift
 //
 //  Created by Joseph Van Boxtel on 11/25/19.
@@ -23,12 +23,12 @@ extension Publisher {
     /// - Parameters:
     ///   - maxPublishers: The maximum number of publishers produced by this method.
     ///   - transform: A closure that takes an element as a parameter and returns a
-    ///     publisher that produces elements of that type.
+    ///     publisher that produces *an element* of the return type.
     /// - Returns: A publisher that transforms elements from an upstream publisher into
     ///   a publisher of that element’s type.
-    public func respectfulFlatMap<Result, Child: Publisher>(
+    public func flatMapFutures<Result, Child: Publisher>(
         _ transform: @escaping (Output) -> Child
-    ) -> Publishers.RespectfulFlatMap<Child, Self>
+    ) -> Publishers.FlatMapFutures<Child, Self>
         where Result == Child.Output, Failure == Child.Failure {
             return .init(upstream: self,
                          transform: transform)
@@ -36,7 +36,7 @@ extension Publisher {
 }
 
 extension Publishers {
-    public struct RespectfulFlatMap<Child: Publisher, Upstream: Publisher>: Publisher
+    public struct FlatMapFutures<Child: Publisher, Upstream: Publisher>: Publisher
         where Child.Failure == Upstream.Failure
     {
         public typealias Output = Child.Output
@@ -63,7 +63,7 @@ extension Publishers {
     }
 }
 
-extension Publishers.RespectfulFlatMap {
+extension Publishers.FlatMapFutures {
     private final class Inner<Downstream: Subscriber>
         : Subscriber,
           Subscription,
@@ -323,7 +323,7 @@ extension Publishers.RespectfulFlatMap {
             outerFinished: Bool
         ) -> Bool {
             if !cancelledOrCompleted && outerFinished &&
-                (childSubscription == nil) {
+                (childSubscription == nil) && !isWaitingForChild {
                 cancelledOrCompleted = true
                 lock.unlock()
                 downstreamLock.lock()

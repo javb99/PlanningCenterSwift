@@ -80,11 +80,7 @@ extension PagingPublisher {
         
         func pageCount(forElementCount elementCount: Subscribers.Demand) -> Subscribers.Demand {
             if let finiteDemand = elementCount.max {
-                var (pageCount, overflow) = finiteDemand.quotientAndRemainder(dividingBy: pageSize)
-                if overflow > 0 {
-                    pageCount += 1
-                }
-                return .max(pageCount)
+                return .max(finiteDemand.divideRoundingUp(by: pageSize))
             } else {
                 return .unlimited
             }
@@ -130,5 +126,26 @@ extension PagingPublisher {
             upstream.cancel()
             upstreamStatus = .terminal
         }
+    }
+    
+    // MARK: - Reflection
+
+    fileprivate var description: String { return "Paging" }
+
+    fileprivate var customMirror: Mirror {
+        return Mirror(self, children: EmptyCollection())
+    }
+
+    fileprivate var playgroundDescription: Any { return description }
+
+}
+
+extension Int {
+    func divideRoundingUp(by divisor: Int) -> Int {
+        var (quotient, remainder) = self.quotientAndRemainder(dividingBy: divisor)
+        if remainder > 0 {
+            quotient += 1
+        }
+        return quotient
     }
 }
