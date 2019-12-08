@@ -15,38 +15,36 @@ extension PCODownloadService {
         Endpt.ResponseBody == ResourceCollectionDocument<R>,
         Endpt.RequestBody == JSONAPISpec.Empty {
             
-            let pageNumbers = Publishers.Sequence(
-                sequence: FunctionSequence<Int>.positiveAscending
-            ).setFailureType(to: Never.self)
-            .print("PageSequence")
-            
             var totalPageCount: Int? = nil
-            
-            let pageFutures = pageNumbers
-                .setFailureType(to: NetworkError.self)
-                .map { pageIndex -> (Int, Future<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>)? in
-                    if pageIndex > 1, let totalPageCount = totalPageCount, pageIndex >= totalPageCount {
-                        return nil
-                    }
-                    return (pageIndex, self.future(for: endpt))
-                }
-                .prefix(while: { $0 != nil })
-                .compactMap{ $0 }
-                .flatMap(maxPublishers: .max(1)) { pageIndex, future in
-                    future
-                    .map { (_, _, body: ResourceCollectionDocument<R>) -> (Int, [Resource<R>]) in
-                        if let totalCount = body.meta?.totalCount {
-                            let pageCount = totalCount.divideRoundingUp(by: pageSize)
-                            totalPageCount = pageCount
-                        }
-                        let resources = body.data ?? []
-                        return (pageIndex, resources)
-                    }
+            func setTotalPages(_ elementCount: Int) {
+                let pageCount = elementCount.divideRoundingUp(by: pageSize)
+                totalPageCount = pageCount
             }
             
-            let orderedPages = Publishers.Orderer(upstream: pageFutures)
-            return PagingPublisher(pageSize: pageSize, upstream: orderedPages)
-                .eraseToAnyPublisher()
+            func pageRequest(forIndex pageIndex: Int) -> Future<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>? {
+                if pageIndex > 1, let totalPageCount = totalPageCount, pageIndex >= totalPageCount {
+                    return nil
+                }
+                return self.future(for: endpt.page(pageNumber: pageIndex, pageSize: pageSize))
+            }
+            let pageIndexes = FunctionSequence<Int>.positiveAscending
+            let pageFutures = Publishers.Sequence(sequence: pageIndexes)
+                .setFailureType(to: NetworkError.self)
+                .map(pageRequest(forIndex:))
+                // Use prefix/compactMap to stop the stream when no more pages.
+                .prefix(while: { $0 != nil })
+                .compactMap{ $0 }
+                .flatMap(maxPublishers: .max(1)) { pageFuture in
+                    pageFuture
+                    .map { (_, _, body: ResourceCollectionDocument<R>) -> [Resource<R>] in
+                        if let elementsCount = body.meta?.totalCount {
+                            setTotalPages(elementsCount)
+                        }
+                        let resources = body.data ?? []
+                        return resources
+                    }
+                }
+            return pageFutures.flatten().eraseToAnyPublisher()
     }
     
     func future<Endpt>(for endpt: Endpt)
@@ -56,6 +54,14 @@ extension PCODownloadService {
         
         Future<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>() { fulfill in
             self.fetch(endpt, completion: fulfill)
+        }
+    }
+}
+
+extension Publisher where Output: Collection {
+    func flatten() -> Publishers.FlatMap<Publishers.Sequence<Self.Output, Self.Failure>, Self> {
+        flatMap(maxPublishers: .max(1)) {
+            Publishers.Sequence<Output, Failure>(sequence: $0)
         }
     }
 }
