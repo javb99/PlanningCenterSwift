@@ -124,12 +124,10 @@ class MockDownloader<E>: PCODownloadService where E : Endpoint, E.RequestBody ==
     
     var respond: (E, @escaping Completion<E>) -> Void
     
-    func fetch<Endpt>(_ endpoint: Endpt, completion: @escaping (Result<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>) -> ()) -> AnyCancellable where Endpt : Endpoint, Endpt.RequestBody == JSONAPISpec.Empty {
+    func fetch<Endpt>(_ endpoint: Endpt, completion: @escaping (Result<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>) -> ())where Endpt : Endpoint, Endpt.RequestBody == JSONAPISpec.Empty {
         
         requestedCount += 1
         
         respond(endpoint as! E, completion as! Completion<E>)
-        
-        return AnyCancellable({})
     }
 }
