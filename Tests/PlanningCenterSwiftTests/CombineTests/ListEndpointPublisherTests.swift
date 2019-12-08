@@ -29,18 +29,6 @@ class ListEndpointPublisherTests: XCTestCase {
         XCTAssertEqual(upstreamRequested, .max(3))
     }
     
-    func test_demandsNoItems_doesNotrequestFirstPage() {
-        let endpt = Endpoints.services.folders
-        let loader = MockDownloader<Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>>()
-        let sut = loader.publisher(for: endpt)
-        let spy = SubscriberSpy<Resource<Models.Folder>, NetworkError>()
-        sut.receive(subscriber: spy)
-
-        // Notice the absence of spy.request(...)
-
-        XCTAssertEqual(loader.requestedCount, 0)
-    }
-    
     func test_demandsFirstItem_requestsFirstPage() {
         let endpt = Endpoints.services.folders
         let loader = MockDownloader<Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>>()
@@ -84,25 +72,7 @@ class ListEndpointPublisherTests: XCTestCase {
         XCTAssertNotNil(spy.completion)
         XCTAssertEqual(spy.received, [0, 1])
     }
-//    
-//    func test_combineLatest() {
-//        let a = Publishers.Sequence(sequence: [0, 1, 2])
-//            .setFailureType(to: Never.self)
-//        let b = Publishers.Sequence(sequence: ["a"])
-//            .setFailureType(to: Never.self)
-//        let sut = Publishers.CombineLatest(a, b)
-//        
-//        let spy = SubscriberSpy<(Int, String), Never>()
-//        sut.receive(subscriber: spy)
-//        spy.request(.max(4))
-//        
-//        XCTAssertNotNil(spy.completion)
-//        XCTAssertEqual(spy.received.count, 3)
-//        XCTAssert(spy.received[0] == (0, "a"))
-////        XCTAssert(spy.received[1] == (1, "a"))
-////        XCTAssert(spy.received[2] == (2, "a"))
-//    }
-//    
+    
     func test_demandsFourPages_threeAvailable_getsThreeAndCompletion() {
         let endpt = Endpoints.services.folders
         let loader = makeThreePageMockLoader(for: endpt)

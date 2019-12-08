@@ -15,57 +15,37 @@ extension PCODownloadService {
         Endpt.ResponseBody == ResourceCollectionDocument<R>,
         Endpt.RequestBody == JSONAPISpec.Empty {
             
-            let pageIndexes =  FunctionSequence<Int>.positiveAscending
-            let totalPageCountSubject = PassthroughSubject<Int?, Never>()
-            //let unlockPub = totalPageCountSubject.compactMap{$0}
             let pageNumbers = Publishers.Sequence(
-                sequence: pageIndexes.dropFirst()
-            )
+                sequence: FunctionSequence<Int>.positiveAscending
+            ).setFailureType(to: Never.self)
             .print("PageSequence")
-            .zip(
-                totalPageCountSubject
-                    .print("CountSubject")
-                    .caching()
-                    .print("Under Cache")
-                    .first(where: {_ in false })
-                    .compactMap{$0}
-                    .print("MaxPages")
-            )
-            //.print("Upstream of holdRequests")
-            //.holdRequests(untilOutputFrom: unlockPub.print("Unlock2"))
-            .print("BeforePrefix")
-            .prefix(while: { index, countAvailable in
-                // Don't fetch more pages than available.
-                index < countAvailable
-            })
-            .map(\.0)
-            .merge(with: Just(0))
-            //.prepend(0)
-            .print("Upstream")
-                
+            
+            var totalPageCount: Int? = nil
             
             let pageFutures = pageNumbers
                 .setFailureType(to: NetworkError.self)
-                .respectfulFlatMap() { pageIndex in
-                    self.future(for: endpt)
+                .map { pageIndex -> (Int, Future<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>)? in
+                    if pageIndex > 1, let totalPageCount = totalPageCount, pageIndex >= totalPageCount {
+                        return nil
+                    }
+                    return (pageIndex, self.future(for: endpt))
+                }
+                .prefix(while: { $0 != nil })
+                .compactMap{ $0 }
+                .flatMap(maxPublishers: .max(1)) { pageIndex, future in
+                    future
                     .map { (_, _, body: ResourceCollectionDocument<R>) -> (Int, [Resource<R>]) in
                         if let totalCount = body.meta?.totalCount {
                             let pageCount = totalCount.divideRoundingUp(by: pageSize)
-                            print("will send pageCount: \(pageCount)")
-                            totalPageCountSubject.send(pageCount)
-                            print("did send pageCount: \(pageCount)")
-                        } else {
-                            print("will send pageCount completion")
-                            totalPageCountSubject.send(completion: .finished)
+                            totalPageCount = pageCount
                         }
                         let resources = body.data ?? []
                         return (pageIndex, resources)
-                    }.print("Child")
-            }.print("Downstream")
+                    }
+            }
             
-            let orderedPages = Publishers.Orderer(upstream: pageFutures).print("Order/Paging")
+            let orderedPages = Publishers.Orderer(upstream: pageFutures)
             return PagingPublisher(pageSize: pageSize, upstream: orderedPages)
-                .print("EndpointPublisher")
                 .eraseToAnyPublisher()
     }
     
