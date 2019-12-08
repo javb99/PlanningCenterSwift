@@ -7,6 +7,9 @@ import Combine
 import JSONAPISpec
 
 
+typealias PagedEndpoint<Endpt: Endpoint> = AnyEndpoint<Endpt.RequestBody, Endpt.ResponseBody>
+typealias PagedFuture<Endpt: Endpoint> = Future<(HTTPURLResponse, PagedEndpoint<Endpt>, Endpt.ResponseBody), NetworkError>
+
 extension PCODownloadService {
     
     func publisher<Endpt, R>(for endpt: Endpt, pageSize: Int = 25)
@@ -29,23 +32,21 @@ extension PCODownloadService {
             }
             
             let pageIndexes = FunctionSequence<Int>.positiveAscending
-            let pageContentArrays = Publishers.Sequence(sequence: pageIndexes)
+            return Publishers.Sequence(sequence: pageIndexes)
                 .setFailureType(to: NetworkError.self)
                 .prefix(while: pageExists)
                 .map { pageIndex in
                     let pageEndpoint = endpt.page(pageNumber: pageIndex, pageSize: pageSize)
                     return self.future(for: pageEndpoint)
                 }
-                .flatMap(maxPublishers: .max(1)) { pageFuture in
-                    pageFuture
-                    .map { (_, _, body: ResourceCollectionDocument<R>) -> [Resource<R>] in
+            .flatMap(maxPublishers: .max(1)) { (pageFuture: PagedFuture<Endpt>) in
+                    return pageFuture.map { (_, _, body: ResourceCollectionDocument<R>) -> [Resource<R>] in
                         if let elementsCount = body.meta?.totalCount {
                             setTotalPages(elementsCount)
                         }
                         return body.data ?? []
                     }
-                }
-            return pageContentArrays.flatten().eraseToAnyPublisher()
+                }.flatten().eraseToAnyPublisher()
     }
     
     func future<Endpt>(for endpt: Endpt)

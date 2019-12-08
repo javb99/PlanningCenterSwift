@@ -43,7 +43,7 @@ class ListEndpointPublisherTests: XCTestCase {
     
     func test_demandsTwoPages_getsBoth() {
         let endpt = Endpoints.services.folders
-        let loader = makeTwoPageMockLoader(for: endpt)
+        let loader = makeMockLoader(for: endpt, pageCount: 2)
         let sut = loader.publisher(for: endpt, pageSize: 4)
         let spy = SubscriberSpy<Resource<Models.Folder>, NetworkError>()
         sut.receive(subscriber: spy)
@@ -75,7 +75,7 @@ class ListEndpointPublisherTests: XCTestCase {
     
     func test_demandsFourPages_threeAvailable_getsThreeAndCompletion() {
         let endpt = Endpoints.services.folders
-        let loader = makeThreePageMockLoader(for: endpt)
+        let loader = makeMockLoader(for: endpt, pageCount: 3)
         let sut = loader.publisher(for: endpt, pageSize: 4)
         let spy = SubscriberSpy<Resource<Models.Folder>, NetworkError>()
         sut.receive(subscriber: spy)
@@ -96,33 +96,16 @@ func ==<A, B>(_ lhs: (A, B), _ rhs: (A, B)) -> Bool where A: Equatable, B: Equat
 
 let folderA = Resource<Models.Folder>(identifer: "10", attributes: .init(name: "STUDENTS", createdAt: Date(), updatedAt: Date(), container: nil))
 let stubFolders = [folderA, folderA, folderA, folderA]
-let stubFoldersResponse = ResourceCollectionDocument<Models.Folder>(data: stubFolders)
 
-let stubTwoPageFoldersResponse = ResourceCollectionDocument<Models.Folder>(data: stubFolders, meta: CountMeta(totalCount: stubFolders.count*2, count: stubFolders.count))
-
-let stubThreePageFoldersResponse = ResourceCollectionDocument<Models.Folder>(data: stubFolders, meta: CountMeta(totalCount: stubFolders.count*3, count: stubFolders.count))
-
-func makeMockLoader(for endpoint: Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>) -> MockDownloader<Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>>  {
-    
-    MockDownloader{ (_, completion) in
-        
-        completion(.success((HTTPURLResponse(), endpoint, stubFoldersResponse)))
-    }
+func stubFoldersResponse(pageCount: Int = 1) -> ResourceCollectionDocument<Models.Folder> {
+    ResourceCollectionDocument<Models.Folder>(data: stubFolders, meta: CountMeta(totalCount: stubFolders.count*pageCount, count: stubFolders.count))
 }
-
-func makeTwoPageMockLoader(for endpoint: Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>) -> MockDownloader<Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>>  {
+typealias TestEndpoint = Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>
+func makeMockLoader(for endpoint: TestEndpoint, pageCount: Int = 1) -> MockDownloader<PagedEndpoint<TestEndpoint>>  {
     
     MockDownloader{ (_, completion) in
         
-        completion(.success((HTTPURLResponse(), endpoint, stubTwoPageFoldersResponse)))
-    }
-}
-
-func makeThreePageMockLoader(for endpoint: Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>) -> MockDownloader<Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>>  {
-    
-    MockDownloader{ (_, completion) in
-        
-        completion(.success((HTTPURLResponse(), endpoint, stubThreePageFoldersResponse)))
+        completion(.success((HTTPURLResponse(), endpoint.page(pageNumber: -1, pageSize: -1), stubFoldersResponse(pageCount: pageCount))))
     }
 }
 
