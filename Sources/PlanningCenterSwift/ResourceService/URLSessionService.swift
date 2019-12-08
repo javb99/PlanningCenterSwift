@@ -33,7 +33,7 @@ public class URLSessionService: PCOService {
         guard let request = requestBuilder.buildRequest(for: endpoint) else {
             fatalError("Failed to build request.")
         }
-        return send(request, for: endpoint, completion: completion)
+        send(request, for: endpoint, completion: completion)
     }
     
     /// Execute a request for an endpoint that requires a request body.
@@ -42,14 +42,14 @@ public class URLSessionService: PCOService {
         guard let request = requestBuilder.buildRequest(for: endpoint, body: body) else {
             fatalError("Failed to build request.")
         }
-        return send(request, for: endpoint, completion: completion)
+        send(request, for: endpoint, completion: completion)
     }
     
     
     // MARK: Implementation
     
     
-    private func send<Endpt>(_ request: URLRequest, for endpoint: Endpt, completion: @escaping Completion<Endpt>) -> AnyCancellable where Endpt: Endpoint {
+    private func send<Endpt>(_ request: URLRequest, for endpoint: Endpt, completion: @escaping Completion<Endpt>) where Endpt: Endpoint {
         
         let task = session.dataTask(with: request) { (data, response, error) in
             
@@ -57,7 +57,6 @@ public class URLSessionService: PCOService {
             completion(result)
         }
         task.resume()
-        return AnyCancellable({task.cancel()})
     }
 }
 

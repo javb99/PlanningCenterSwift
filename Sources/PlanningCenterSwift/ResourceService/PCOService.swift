@@ -12,20 +12,17 @@ public typealias PCOService = PCOUploadService & PCODownloadService
 
 public protocol PCOUploadService {
     /// Execute a request for an endpoint that requires a request body.
-    @discardableResult
     func send<Endpt: Endpoint>(
         body: Endpt.RequestBody,
         to endpoint: Endpt,
         completion: @escaping Completion<Endpt>
-    ) -> AnyCancellable
+    )
 }
 
 public protocol PCODownloadService {
     /// Execute a request for an endpoint that doesn't require a request body.
-    @discardableResult
     func fetch<Endpt: Endpoint>(
         _ endpoint: Endpt,
         completion: @escaping Completion<Endpt>
-    ) -> AnyCancellable
-        where Endpt.RequestBody == JSONAPISpec.Empty
+    ) where Endpt.RequestBody == JSONAPISpec.Empty
 }
