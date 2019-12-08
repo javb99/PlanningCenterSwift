@@ -21,30 +21,31 @@ extension PCODownloadService {
                 totalPageCount = pageCount
             }
             
-            func pageRequest(forIndex pageIndex: Int) -> Future<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>? {
+            func pageExists(_ pageIndex: Int) -> Bool {
                 if pageIndex > 1, let totalPageCount = totalPageCount, pageIndex >= totalPageCount {
-                    return nil
+                    return false
                 }
-                return self.future(for: endpt.page(pageNumber: pageIndex, pageSize: pageSize))
+                return true
             }
+            
             let pageIndexes = FunctionSequence<Int>.positiveAscending
-            let pageFutures = Publishers.Sequence(sequence: pageIndexes)
+            let pageContentArrays = Publishers.Sequence(sequence: pageIndexes)
                 .setFailureType(to: NetworkError.self)
-                .map(pageRequest(forIndex:))
-                // Use prefix/compactMap to stop the stream when no more pages.
-                .prefix(while: { $0 != nil })
-                .compactMap{ $0 }
+                .prefix(while: pageExists)
+                .map { pageIndex in
+                    let pageEndpoint = endpt.page(pageNumber: pageIndex, pageSize: pageSize)
+                    return self.future(for: pageEndpoint)
+                }
                 .flatMap(maxPublishers: .max(1)) { pageFuture in
                     pageFuture
                     .map { (_, _, body: ResourceCollectionDocument<R>) -> [Resource<R>] in
                         if let elementsCount = body.meta?.totalCount {
                             setTotalPages(elementsCount)
                         }
-                        let resources = body.data ?? []
-                        return resources
+                        return body.data ?? []
                     }
                 }
-            return pageFutures.flatten().eraseToAnyPublisher()
+            return pageContentArrays.flatten().eraseToAnyPublisher()
     }
     
     func future<Endpt>(for endpt: Endpt)
