@@ -7,12 +7,12 @@ import Combine
 import JSONAPISpec
 
 
-typealias PagedEndpoint<Endpt: Endpoint> = AnyEndpoint<Endpt.RequestBody, Endpt.ResponseBody>
+public typealias PagedEndpoint<Endpt: Endpoint> = AnyEndpoint<Endpt.RequestBody, Endpt.ResponseBody>
 typealias PagedFuture<Endpt: Endpoint> = Future<(HTTPURLResponse, PagedEndpoint<Endpt>, Endpt.ResponseBody), NetworkError>
 
 extension PCODownloadService {
     
-    func publisher<Endpt, R>(for endpt: Endpt, pageSize: Int = 25)
+    public func publisher<Endpt, R>(for endpt: Endpt, pageSize: Int = 25)
         -> AnyPublisher<Resource<R>, NetworkError>
         where Endpt: Endpoint, R: ResourceProtocol,
         Endpt.ResponseBody == ResourceCollectionDocument<R>,
@@ -49,7 +49,7 @@ extension PCODownloadService {
                 }.flatten().eraseToAnyPublisher()
     }
     
-    func future<Endpt>(for endpt: Endpt)
+    public func future<Endpt>(for endpt: Endpt)
     -> Future<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>
     where Endpt: Endpoint,
     Endpt.RequestBody == JSONAPISpec.Empty {
@@ -61,7 +61,7 @@ extension PCODownloadService {
 }
 
 extension Publisher where Output: Collection {
-    func flatten() -> Publishers.FlatMap<Publishers.Sequence<Self.Output, Self.Failure>, Self> {
+    public func flatten() -> Publishers.FlatMap<Publishers.Sequence<Self.Output, Self.Failure>, Self> {
         flatMap(maxPublishers: .max(1)) {
             Publishers.Sequence<Output, Failure>(sequence: $0)
         }
