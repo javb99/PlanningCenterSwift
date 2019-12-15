@@ -42,7 +42,7 @@ extension Models.NeededPosition: ResourceProtocol {
     /// A time that a needed position can be scheduled to. Either all times or a specific time ID.
     public enum ScheduledTo: String, Codable {
         
-        case all
+        case plan
         
         /// Get the time ID with the `time` relationship on the resource.
         case time
