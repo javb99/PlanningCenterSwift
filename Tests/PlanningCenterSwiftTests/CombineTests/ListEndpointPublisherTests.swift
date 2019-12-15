@@ -31,7 +31,7 @@ class ListEndpointPublisherTests: XCTestCase {
     
     func test_demandsFirstItem_requestsFirstPage() {
         let endpt = Endpoints.services.folders
-        let loader = MockDownloader<Filtered<CRUDEndpoint<Endpoints.Folder>, Endpoints.Folder.ParentFilter>>()
+        let loader = makeMockLoader(for: endpt, pageCount: 1)
         let sut = loader.publisher(for: endpt)
         let spy = SubscriberSpy<Resource<Models.Folder>, NetworkError>()
         sut.receive(subscriber: spy)
@@ -115,7 +115,7 @@ extension Resource: CustomStringConvertible where Type == Models.Folder {
     }
 }
 
-class MockDownloader<E>: PCODownloadService where E : Endpoint, E.RequestBody == JSONAPISpec.Empty {
+class MockDownloader<E>: PCOCombineService where E : Endpoint, E.RequestBody == JSONAPISpec.Empty {
     internal init(respond: @escaping (E, @escaping Completion<E>) -> Void = { _,_  in }) {
         self.respond = respond
     }
@@ -124,10 +124,14 @@ class MockDownloader<E>: PCODownloadService where E : Endpoint, E.RequestBody ==
     
     var respond: (E, @escaping Completion<E>) -> Void
     
-    func fetch<Endpt>(_ endpoint: Endpt, completion: @escaping (Result<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError>) -> ())where Endpt : Endpoint, Endpt.RequestBody == JSONAPISpec.Empty {
+    func future<Endpt>(for endpoint: Endpt) -> AnyPublisher<(HTTPURLResponse, Endpt, Endpt.ResponseBody), NetworkError> where Endpt : Endpoint, Endpt.RequestBody == JSONAPISpec.Empty {
         
         requestedCount += 1
         
-        respond(endpoint as! E, completion as! Completion<E>)
+        return Future() { promise in
+            print(type(of: promise))
+            print(String(describing: Completion<E>.self))
+            self.respond(endpoint as! E, promise as! Completion<E>)
+        }.eraseToAnyPublisher()
     }
 }
