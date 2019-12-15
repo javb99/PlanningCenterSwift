@@ -7,7 +7,7 @@ import JSONAPISpec
 
 extension Endpoints.Plan {
     
-    public var teamPositions: ListEndpoint<Endpoints.NeededPosition> { .init(path: path.appending("needed_positions")) }
+    public var neededPositions: ListEndpoint<Endpoints.NeededPosition> { .init(path: path.appending("needed_positions")) }
 }
 
 extension Endpoints {
