@@ -22,11 +22,17 @@ public class JSONResponseHandler: ResponseHandler {
             return .failure(.noHTTPResponse)
         }
         
-        guard httpResponse.statusCode != 401 else {
+        guard httpResponse.statusCode != 401, httpResponse.statusCode != 403 else {
             return .failure(.notAuthorized)
         }
-        guard httpResponse.statusCode <= 400 else {
-            return .failure(.notAuthorized)
+        guard httpResponse.statusCode != 429 else {
+            return .failure(.rateLimit)
+        }
+        guard !(400..<500).contains(httpResponse.statusCode) else {
+            return .failure(.client(httpResponse.statusCode))
+        }
+        guard httpResponse.statusCode < 500 else {
+            return .failure(.server(httpResponse.statusCode))
         }
             
         if Endpt.ResponseBody.self == Empty.self {
