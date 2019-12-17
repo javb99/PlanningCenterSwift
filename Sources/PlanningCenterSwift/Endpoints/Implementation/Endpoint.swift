@@ -17,6 +17,7 @@ public protocol Endpoint {
     var method: HTTPMethod { get }
     var path: Path { get }
     var queryParams: [URLQueryItem] { get }
+    var requiresAuthentication: Bool { get }
 
     associatedtype RequestBody: Encodable
     associatedtype ResponseBody: Decodable
@@ -24,6 +25,7 @@ public protocol Endpoint {
 
 extension Endpoint {
     public var queryParams: [URLQueryItem] { [] }
+    public var requiresAuthentication: Bool { true }
 }
 
 public struct AnyEndpoint<RequestBody, ResponseBody>: Endpoint

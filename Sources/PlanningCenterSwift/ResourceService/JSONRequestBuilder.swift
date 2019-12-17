@@ -50,10 +50,12 @@ public class JSONRequestBuilder: RequestBuilder {
         request.httpMethod = endpoint.method.rawValue
         
         // Add the authentication header.
-        guard let (headerField, value) = authenticationProvider.authenticationHeader else {
-            return nil
+        if endpoint.requiresAuthentication {
+            guard let (headerField, value) = authenticationProvider.authenticationHeader else {
+                return nil
+            }
+            request.addValue(value, forHTTPHeaderField: headerField)
         }
-        request.addValue(value, forHTTPHeaderField: headerField)
         
         return request
     }
