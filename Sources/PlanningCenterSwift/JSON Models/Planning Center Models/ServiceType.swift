@@ -12,6 +12,42 @@ import JSONAPISpec
 extension Models {
     public struct ServiceType {}
 }
+typealias MServiceType = Resource<Models.ServiceType>
+
+extension Resource where Type == Models.ServiceType {
+    init(id: MServiceType.ID,
+         name: String?,
+         sequenceIndex: Int,
+         areAttachmentTypesEnabled: Bool? = nil,
+         createdAt: Date = Date(),
+         updatedAt: Date? = nil,
+         archivedAt: Date? = nil,
+         deletedAt: Date? = nil,
+         permissions: String? = nil,
+         backgroundCheckPermissions: String? = nil,
+         commentPermissions: String? = nil,
+         frequency: String? = nil,
+         lastPlanFrom: String? = nil
+    ) {
+        self.init(
+            identifer: id,
+            attributes: .init(
+                name: name,
+                sequenceIndex: sequenceIndex,
+                areAttachmentTypesEnabled: areAttachmentTypesEnabled,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                archivedAt: archivedAt,
+                deletedAt: deletedAt,
+                permissions: permissions,
+                backgroundCheckPermissions: backgroundCheckPermissions,
+                commentPermissions: commentPermissions,
+                frequency: frequency,
+                lastPlanFrom: lastPlanFrom
+            )
+        )
+    }
+}
 
 extension Models.ServiceType: ResourceProtocol, SingularNameProviding {
     

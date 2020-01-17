@@ -9,13 +9,8 @@
 import Foundation
 import JSONAPISpec
 
-
-public enum Models {}
-
 extension Models {
-    public struct Folder {
-        
-    }
+    public struct Folder {}
 }
 
 extension Models.Folder: ResourceProtocol {
