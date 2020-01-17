@@ -14,6 +14,33 @@ import JSONAPISpec
 extension Models {
     public struct Team {}
 }
+public typealias MTeam = Resource<Models.Team>
+
+extension MTeam {
+    public init(
+        name: String?,
+        sequenceIndex: Int? = nil,
+        scheduleTo: Models.Team.ScheduleTo,
+        createdAt: Date = Date(),
+        updatedAt: Date? = nil,
+        defaultStatus: Models.PlanPerson.Status? = nil,
+        defaultPrepareNotifications: Bool? = nil,
+        assignedDirectly: Bool? = nil
+    ) {
+        self.init(
+            identifer: id,
+            attributes: .init(
+                name: name,
+                sequenceIndex: sequenceIndex,
+                scheduleTo: scheduleTo,
+                createdAt: createdAt, updatedAt: updatedAt,
+                defaultStatus: defaultStatus,
+                defaultPrepareNotifications: defaultPrepareNotifications,
+                assignedDirectly: assignedDirectly
+            )
+        )
+    }
+}
 
 extension Models.Team: ResourceProtocol, SingularNameProviding {
     
