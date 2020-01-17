@@ -12,10 +12,10 @@ import JSONAPISpec
 extension Models {
     public struct Folder {}
 }
-typealias MFolder = Resource<Models.Folder>
+public typealias MFolder = Resource<Models.Folder>
 
 extension MFolder {
-    init(id: MFolder.ID, name: String? = nil, createdAt: Date = Date(), updatedAt: Date? = nil, container: String? = nil) {
+    public init(id: MFolder.ID, name: String? = nil, createdAt: Date = Date(), updatedAt: Date? = nil, container: String? = nil) {
         MFolder.init(identifer: id, attributes: .init(name: name, createdAt: createdAt, updatedAt: updatedAt, container: container))
     }
 }

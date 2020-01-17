@@ -12,10 +12,10 @@ import JSONAPISpec
 extension Models {
     public struct ServiceType {}
 }
-typealias MServiceType = Resource<Models.ServiceType>
+public typealias MServiceType = Resource<Models.ServiceType>
 
-extension Resource where Type == Models.ServiceType {
-    init(id: MServiceType.ID,
+extension MServiceType {
+    public init(id: MServiceType.ID,
          name: String?,
          sequenceIndex: Int,
          areAttachmentTypesEnabled: Bool? = nil,
