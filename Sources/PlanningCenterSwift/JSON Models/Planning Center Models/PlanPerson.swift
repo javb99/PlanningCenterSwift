@@ -15,6 +15,42 @@ import JSONAPISpec
 extension Models {
     public struct PlanPerson {}
 }
+public typealias MPlanPerson = Resource<Models.PlanPerson>
+
+extension MPlanPerson {
+    init(id: MPlanPerson.ID,
+         status: Models.PlanPerson.Status,
+         name: String,
+         positionName: String? = nil,
+         photoThumbnail: URL,
+         createdAt: Date = Date(),
+         updatedAt: Date,
+         notes: String? = nil,
+         declineReason: String? = nil,
+         statusUpdatedAt: Date? = nil,
+         notificationSentAt: Date? = nil,
+         isNotificationPrepared: Bool,
+         canAcceptPartial: Bool
+    ) {
+        self.init(
+            identifer: id,
+            attributes: .init(
+                status: status,
+                name: name,
+                positionName: positionName,
+                photoThumbnail: photoThumbnail,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                notes: notes,
+                declineReason: declineReason,
+                statusUpdatedAt: statusUpdatedAt,
+                notificationSentAt: notificationSentAt,
+                isNotificationPrepared: isNotificationPrepared,
+                canAcceptPartial: canAcceptPartial
+            )
+        )
+    }
+}
 
 extension Models.PlanPerson {
     public enum Status: String, Codable {
