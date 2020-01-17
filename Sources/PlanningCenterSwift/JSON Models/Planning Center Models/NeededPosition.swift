@@ -14,6 +14,13 @@ import JSONAPISpec
 extension Models {
     public struct NeededPosition {}
 }
+public typealias MNeededPosition = Resource<Models.NeededPosition>
+
+extension MNeededPosition {
+    public init(id: MNeededPosition.ID, quantity: Int, positionName: String, scheduledTo: Models.NeededPosition.ScheduledTo) {
+        MNeededPosition.init(identifer: id, attributes: .init(quantity: quantity, positionName: positionName, scheduledTo: scheduledTo))
+    }
+}
 
 extension Models.NeededPosition: ResourceProtocol {
     
