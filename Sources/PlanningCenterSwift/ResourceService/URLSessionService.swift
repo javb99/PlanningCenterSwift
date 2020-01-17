@@ -62,7 +62,7 @@ public class URLSessionService: PCOService {
 
 extension URLSessionService {
     
-    public convenience init(authenticationProvider: BasicAuthenticationProvider) {
+    public convenience init(authenticationProvider: AuthenticationProvider) {
         let baseURL = URL(string: "https://api.planningcenteronline.com")!
         
         self.init(
