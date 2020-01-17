@@ -12,6 +12,59 @@ import JSONAPISpec
 extension Models {
     public struct Plan {}
 }
+public typealias MPlan = Resource<Models.Plan>
+
+extension MPlan {
+    public init(
+        id: MPlan.ID,
+        title: String? = nil,
+        seriesTitle: String? = nil,
+        itemsCount: Int,
+        planNotesCount: Int,
+        planPeopleCount: Int,
+        neededPositionsCount: Int,
+        serviceTimeCount: Int,
+        rehearsalTimeCount: Int,
+        otherTimeCount: Int,
+        createdAt: Date = Date(),
+        updatedAt: Date? = nil,
+        filesExpireAt: Date? = nil,
+        sortDate: Date? = nil,
+        lastTimeAt: Date? = nil,
+        isMultiDay: Bool? = nil,
+        shortDates: String? = nil,
+        longDates: String? = nil,
+        totalLength: Int,
+        myPermissionsFor: String? = nil,
+        isPublic: Bool? = nil
+    ) {
+        self.init(
+            id: id,
+            attributes: .init(
+                title: title,
+                seriesTitle: seriesTitle,
+                itemsCount: itemsCount,
+                planNotesCount: planNotesCount,
+                planPeopleCount: planPeopleCount,
+                neededPositionsCount: neededPositionsCount,
+                serviceTimeCount: serviceTimeCount,
+                rehearsalTimeCount: rehearsalTimeCount,
+                otherTimeCount: otherTimeCount,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                filesExpireAt: filesExpireAt,
+                sortDate: sortDate,
+                lastTimeAt: lastTimeAt,
+                isMultiDay: isMultiDay,
+                shortDates: shortDates,
+                longDates: longDates,
+                totalLength: totalLength,
+                myPermissionsFor: myPermissionsFor,
+                isPublic: isPublic
+            )
+        )
+    }
+}
 
 extension Models.Plan: ResourceProtocol {
 
