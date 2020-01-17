@@ -39,8 +39,8 @@ extension MPlan {
         isPublic: Bool? = nil
     ) {
         self.init(
-            id: id,
-            attributes: Models.Plan.Attributes(
+            identifer: id,
+            attributes: .init(
                 title: title,
                 seriesTitle: seriesTitle,
                 itemsCount: itemsCount,
