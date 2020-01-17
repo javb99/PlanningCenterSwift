@@ -18,9 +18,10 @@ public typealias MTeam = Resource<Models.Team>
 
 extension MTeam {
     public init(
+        id: MTeam.ID,
         name: String?,
         sequenceIndex: Int? = nil,
-        scheduleTo: Models.Team.ScheduleTo,
+        isSplit: Bool,
         createdAt: Date = Date(),
         updatedAt: Date? = nil,
         defaultStatus: Models.PlanPerson.Status? = nil,
@@ -32,7 +33,7 @@ extension MTeam {
             attributes: .init(
                 name: name,
                 sequenceIndex: sequenceIndex,
-                scheduleTo: scheduleTo,
+                scheduleTo: isSplit ? .time : .plan,
                 createdAt: createdAt, updatedAt: updatedAt,
                 defaultStatus: defaultStatus,
                 defaultPrepareNotifications: defaultPrepareNotifications,
@@ -68,6 +69,7 @@ extension Models.Team: ResourceProtocol, SingularNameProviding {
 
         public var sequenceIndex: Int?
 
+        /// Use `isSplit` instead from clients.
         fileprivate var scheduleTo: ScheduleTo
 
         public var createdAt: Date?

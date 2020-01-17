@@ -40,7 +40,7 @@ extension MPlan {
     ) {
         self.init(
             id: id,
-            attributes: .init(
+            attributes: Models.Plan.Attributes(
                 title: title,
                 seriesTitle: seriesTitle,
                 itemsCount: itemsCount,

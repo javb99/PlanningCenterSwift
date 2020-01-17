@@ -16,7 +16,7 @@ public typealias MFolder = Resource<Models.Folder>
 
 extension MFolder {
     public init(id: MFolder.ID, name: String? = nil, createdAt: Date = Date(), updatedAt: Date? = nil, container: String? = nil) {
-        MFolder.init(identifer: id, attributes: .init(name: name, createdAt: createdAt, updatedAt: updatedAt, container: container))
+        self.init(identifer: id, attributes: .init(name: name, createdAt: createdAt, updatedAt: updatedAt, container: container))
     }
 }
 
