@@ -16,5 +16,9 @@ final class PeoplePersonTests: XCTestCase {
         
         XCTAssertEqual(person.data?.identifer.id, "25452054")
     }
-    
+    func test_withAnniversary_decode_success() {
+        let person: ResourceDocument<Models.PeoplePerson> = try! decode(PeoplePersonJSON.withAniversary)
+        
+        XCTAssertNotNil(person.data?.anniversary)
+    }
 }

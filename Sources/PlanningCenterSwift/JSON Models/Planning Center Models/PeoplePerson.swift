@@ -35,7 +35,7 @@ extension Models.PeoplePerson: ResourceProtocol {
 
         public var updatedAt: Date?
 
-        public var anniversary: Date?
+        public var anniversary: String? // Month-day-year
 
         public var birthdate: String? // Month-day-year
         
