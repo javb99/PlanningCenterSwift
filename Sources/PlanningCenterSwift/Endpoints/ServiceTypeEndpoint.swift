@@ -21,7 +21,7 @@ extension Endpoints.ServiceType {
 }
 
 extension Endpoints.ServiceType {
-    public struct PlanFilter {
+    public struct PlanFilter: Hashable {
         
         public var lowerBound: Date?
         public var upperBound: Date?
