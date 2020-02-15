@@ -37,7 +37,7 @@ extension Endpoints.ServiceType.PlanFilter: QueryParamProviding {
             return [URLQueryItem(name: "filter", value: "no_dates")]
         case let .before(date):
             let stringRep = pcjsonDateAndTimeFormatter.string(from: date)
-            return [URLQueryItem(name: "filter[after]", value: stringRep)]
+            return [URLQueryItem(name: "filter[before]", value: stringRep)]
         case let .after(date):
             let stringRep = pcjsonDateAndTimeFormatter.string(from: date)
             return [URLQueryItem(name: "filter[after]", value: stringRep)]
