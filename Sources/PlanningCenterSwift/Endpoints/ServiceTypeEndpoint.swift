@@ -41,22 +41,26 @@ extension Endpoints.ServiceType.PlanFilter: QueryParamProviding {
     public var queryParams: [URLQueryItem] {
         switch (lowerBound, upperBound) {
         case (.none, .none):
-            return [URLQueryItem(name: "filter", value: "no_dates")]
+            return [URLQueryItem(name: "filter", value: "no_dates"),
+                    URLQueryItem(name: "order", value: "-sort_date")]
         case (let .some(l), let .some(u)):
             return [
                 URLQueryItem(name: "filter", value: "after,before"),
                 URLQueryItem(name: "before", value: pcjsonDateAndTimeFormatter.string(from: u)),
-                URLQueryItem(name: "after", value: pcjsonDateAndTimeFormatter.string(from: l))
+                URLQueryItem(name: "after", value: pcjsonDateAndTimeFormatter.string(from: l)),
+                URLQueryItem(name: "order", value: "-sort_date")
             ]
         case (.none, let .some(u)):
             return [
                 URLQueryItem(name: "filter", value: "before"),
-                URLQueryItem(name: "before", value: pcjsonDateAndTimeFormatter.string(from: u))
+                URLQueryItem(name: "before", value: pcjsonDateAndTimeFormatter.string(from: u)),
+                URLQueryItem(name: "order", value: "-sort_date")
             ]
         case (let .some(l), .none):
             return [
                 URLQueryItem(name: "filter", value: "after"),
-                URLQueryItem(name: "after", value: pcjsonDateAndTimeFormatter.string(from: l))
+                URLQueryItem(name: "after", value: pcjsonDateAndTimeFormatter.string(from: l)),
+                URLQueryItem(name: "order", value: "-sort_date")
             ]
         }
     }
