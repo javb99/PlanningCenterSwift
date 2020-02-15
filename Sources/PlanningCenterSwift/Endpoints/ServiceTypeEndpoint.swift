@@ -22,37 +22,16 @@ extension Endpoints.ServiceType {
 
 extension Endpoints.ServiceType {
     public struct PlanFilter {
-        public enum LowerBound {
-            case after(Date)
-            case future
-            
-            var date: Date {
-                if case let .after(d) = self {
-                    return d
-                }
-                return Date() // .future is the same as after(now)
-            }
-        }
-        public enum UpperBound {
-            case before(Date)
-            case past
-            
-            var date: Date {
-                if case let .before(d) = self {
-                    return d
-                }
-                return Date() // .past is the same as before(now)
-            }
-        }
         
-        var lowerBound: LowerBound?
-        var upperBound: UpperBound?
+        public var lowerBound: Date?
+        public var upperBound: Date?
         
-        static let noDates = Self(lowerBound: nil, upperBound: nil)
-        static let future = Self(lowerBound: .future, upperBound: nil)
+        public static let noDates = Self(lowerBound: nil, upperBound: nil)
+        public static let future = Self(lowerBound: Date(), upperBound: nil)
+        public static let past = Self(lowerBound: nil, upperBound: Date())
         
-        static func between(_ lowerBound: Date, and upperBound: Date) -> Self {
-            Self(lowerBound: .after(lowerBound), upperBound: .before(upperBound))
+        public static func between(_ lowerBound: Date, and upperBound: Date) -> Self {
+            Self(lowerBound: lowerBound, upperBound: upperBound)
         }
     }
 }
@@ -66,18 +45,18 @@ extension Endpoints.ServiceType.PlanFilter: QueryParamProviding {
         case (let .some(l), let .some(u)):
             return [
                 URLQueryItem(name: "filter", value: "after,before"),
-                URLQueryItem(name: "before", value: pcjsonDateAndTimeFormatter.string(from: u.date)),
-                URLQueryItem(name: "after", value: pcjsonDateAndTimeFormatter.string(from: l.date))
+                URLQueryItem(name: "before", value: pcjsonDateAndTimeFormatter.string(from: u)),
+                URLQueryItem(name: "after", value: pcjsonDateAndTimeFormatter.string(from: l))
             ]
         case (.none, let .some(u)):
             return [
                 URLQueryItem(name: "filter", value: "before"),
-                URLQueryItem(name: "before", value: pcjsonDateAndTimeFormatter.string(from: u.date))
+                URLQueryItem(name: "before", value: pcjsonDateAndTimeFormatter.string(from: u))
             ]
         case (let .some(l), .none):
             return [
                 URLQueryItem(name: "filter", value: "after"),
-                URLQueryItem(name: "after", value: pcjsonDateAndTimeFormatter.string(from: l.date))
+                URLQueryItem(name: "after", value: pcjsonDateAndTimeFormatter.string(from: l))
             ]
         }
     }
